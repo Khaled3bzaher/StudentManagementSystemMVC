@@ -1,0 +1,99 @@
+﻿@model IEnumerable<CourseViewModel>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<div class="container my-5">
+    <!-- Header and Add Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="bi bi-book me-2"></i>Courses</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle me-2"></i>Add Course
+        </a>
+    </div>
+
+   
+
+    <!-- Courses Cards -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+        @if (!Model.Any())
+        {
+            <div class="col">
+                <div class="alert alert-warning text-center" role="alert">
+                    <i class="bi bi-exclamation-circle me-2"></i>No courses available.
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card shadow-sm h-100" >
+                        <div class="card-header  @(item.isCommon ? "bg-success" : item.isActive ? "bg-primary" : "bg-danger") text-white py-2">
+                            <h6 class="card-title mb-0"><i class="bi bi-book me-2"></i>@item.Name</h6>
+                        </div>
+                        <div class="card-body py-3">
+                            <dl class="mb-0 small">
+                                <dt class="fw-bold"><i class="bi bi-code me-1"></i>Code</dt>
+                                <dd class="ms-3">@item.Code</dd>
+
+                                <dt class="fw-bold"><i class="bi bi-clock me-1"></i>Credit Hours</dt>
+                                <dd class="ms-3">@item.CreditHour</dd>
+
+                                <dt class="fw-bold"><i class="bi bi-building me-1"></i>Department</dt>
+                                <dd class="ms-3">@(item.Department ?? "None")</dd>
+
+                                <dt class="fw-bold"><i class="bi bi-toggle-on me-1"></i>Status</dt>
+                                <dd class="ms-3">
+                                    <span class="badge bg-@(item.isActive ? "success" : "danger")">
+                                        @(item.isActive ? "Active" : "Inactive")
+                                    </span>
+                                </dd>
+
+                                <dt class="fw-bold"><i class="bi bi-toggle-on me-1"></i>Is Common?</dt>
+                                <dd class="ms-3">
+                                    <span class="badge bg-@(item.isCommon ? "success" : "danger")">
+                                        @(item.isCommon ? "Yes" : "No")
+                                    </span>
+                                </dd>
+
+                                <dt class="fw-bold"><i class="bi bi-link-45deg me-1"></i>Prerequisite</dt>
+                                <dd class="ms-3">@(item.PrerequisiteCourse ?? "None")</dd>
+                            </dl>
+                        </div>
+                        <div class="card-footer bg-light py-2">
+                            <div class="d-flex justify-content-between">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil-square"> Edit</i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                    <i class="bi bi-eye"> Details</i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"> Delete</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Automatically dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                }, 5000);
+            });
+        });
+    </script>
+}

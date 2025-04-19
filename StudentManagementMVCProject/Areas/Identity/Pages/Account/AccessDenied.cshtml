@@ -1,0 +1,29 @@
+﻿@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Access Denied";
+}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <div class="text-danger mb-4">
+                        <i class="bi bi-shield-lock-fill" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="h2 mb-3">تم رفض الوصول</h1>
+                    <p class="lead mb-4">ليس لديك الصلاحيات الكافية للوصول إلى هذه الصفحة.</p>
+                    <p class="text-muted">يرجى التواصل مع المسؤول إذا كنت تعتقد أن هذا خطأ.</p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                        <a href="/" class="btn btn-primary px-4">
+                            <i class="bi bi-house-door me-2"></i>العودة للرئيسية
+                        </a>
+                        <a href="mailto:khaled3bzaher@gmail.com" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-envelope me-2"></i>الاتصال بالدعم
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

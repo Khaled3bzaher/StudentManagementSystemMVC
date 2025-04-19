@@ -1,0 +1,12 @@
+﻿@if (TempData["SweetAlertMessage"] != null)
+{
+        <script>
+            Swal.fire({
+                title: '@Html.Raw(TempData["SweetAlertMessage"])',
+                icon: '@TempData["SweetAlertType"]',
+                confirmButtonText: '@(TempData["SweetAlertButtonText"] ?? "حسناً")',
+                
+                showConfirmButton: @((TempData["SweetAlertShowButton"] ?? "true").ToString().ToLower())
+            });
+        </script>
+}

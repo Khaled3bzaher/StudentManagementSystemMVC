@@ -1,0 +1,136 @@
+﻿@model AddStudentDTO
+@{
+    ViewData["Title"] = $"Create Student";
+
+}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center fw-bold">Create New Student</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Personal Information -->
+                    <h5 class="mb-3">Personal Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <input asp-for="FirstName" class="form-control" maxlength="50" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control" maxlength="50" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NationalId" class="form-label"></label>
+                            <input asp-for="NationalId" class="form-control" maxlength="14" />
+                            <span asp-validation-for="NationalId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" maxlength="11" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ParentPhone" class="form-label"></label>
+                            <input asp-for="ParentPhone" class="form-control" maxlength="11" />
+                            <span asp-validation-for="ParentPhone" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DateOfBirth" class="form-label"></label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" id="DateOfBirth" min="1990-01-01"/>
+                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Academic Information -->
+                    <h5 class="mt-4 mb-3">Academic Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="StudentNumber" class="form-label"></label>
+                            <input asp-for="StudentNumber" class="form-control" maxlength="14"/>
+                            <span asp-validation-for="StudentNumber" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DepartmentId" class="form-label"></label>
+                            <select asp-for="DepartmentId" class="form-select" asp-items="Model.Departments">
+                                <option value="">Select Department</option>
+                            </select>
+                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select" asp-items="Model.StudentStatus" id="statusDropdown">
+                                <option value="">Select Student Status</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6" id="levelDropdownDiv">
+                            <label asp-for="Level" class="form-label"></label>
+                            <select asp-for="Level" class="form-select" asp-items="Model.AcademicLevel" id="levelDropdown">
+                                <option value="">Select Academic Level</option>
+                            </select>
+                            <span asp-validation-for="Level" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Account Information -->
+                    <h5 class="mt-4 mb-3">Account Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control" type="password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-person-plus me-2"></i>Create Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.getElementById('DateOfBirth');
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD
+            dateInput.setAttribute('max', today); // Set max to today
+        });
+
+        document.getElementById("statusDropdown").addEventListener("change", function () {
+            var statusValue = this.value;
+            var levelDropdownDiv = document.getElementById("levelDropdownDiv");
+            var levelDropdown = document.getElementById("levelDropdown");
+
+            if (statusValue === "2") {
+                levelDropdown.value = "4";
+                levelDropdownDiv.classList.add("d-none");
+            } else {
+                levelDropdownDiv.classList.remove("d-none");
+            }
+        });
+    </script>
+}

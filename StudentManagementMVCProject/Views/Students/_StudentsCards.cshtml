@@ -1,0 +1,61 @@
+﻿@model IEnumerable<StudentListViewModel>
+
+@if (Model.Any())
+{
+    @foreach (var student in Model)
+    {
+        // تحديد لون الـ card-header بناءً على StudentStatus
+        var headerClass = student.StudentStatus switch
+        {
+            StudentStatus.Active => "bg-success",
+            StudentStatus.Graduated => "bg-info",
+            StudentStatus.Suspended => "bg-warning",
+            StudentStatus.Expelled => "bg-danger",
+            StudentStatus.Withdrawn => "bg-secondary",
+            _ => "bg-primary" // افتراضي إذا لم تتطابق الحالة
+        };
+
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header @headerClass text-white d-flex align-items-center">
+                    <span class="badge bg-light text-dark rounded-circle me-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        @student.FullName.FirstOrDefault()
+                    </span>
+                    <h6 class="card-title mb-0">@student.FullName</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><i class="bi bi-hash me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.StudentNumber) :</strong> @(student.StudentNumber ?? "NA")</li>
+                        <li class="list-group-item"><i class="bi bi-card-text me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.NationalId) :</strong> @Html.DisplayFor(model => student.NationalId)</li>
+                        <li class="list-group-item"><i class="bi bi-envelope me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.Email) :</strong> @Html.DisplayFor(model => student.Email)</li>
+                        <li class="list-group-item"><i class="bi bi-building me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.Department) :</strong> @Html.DisplayFor(model => student.Department)</li>
+                        <li class="list-group-item"><i class="bi bi-book me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.AcademicLevel) :</strong> @Html.DisplayFor(model => student.AcademicLevel)</li>
+                        <li class="list-group-item"><i class="bi bi-check-circle me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.StudentStatus) :</strong> @Html.DisplayFor(model => student.StudentStatus)</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex gap-2">
+                        <a asp-action="Courses" asp-route-id="@student.Id" class="btn btn-primary btn-sm flex-fill">
+                            <i class="bi bi-book"></i> عرض المقررات
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-outline-primary btn-sm flex-fill">تعديل</a>
+                        <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-outline-info btn-sm flex-fill">تفاصيل</a>
+                        <button type="button" class="btn btn-outline-danger btn-sm flex-fill delete-btn"
+                                data-id="@student.Id"
+                                data-name="@student.FullName">
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle me-2"></i>لا توجد نتائج مطابقة للبحث
+        </div>
+    </div>
+}

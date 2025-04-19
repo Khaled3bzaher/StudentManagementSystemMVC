@@ -1,0 +1,211 @@
+﻿@model StudentSearchViewModel
+@{
+    ViewData["Title"] = "Students";
+}
+
+<div class="container py-4">
+    <h3 class="mb-4 text-primary fw-bold">قائمة الطلاب</h3>
+    <a asp-action="Create" class="btn btn-primary mb-4">
+        <i class="bi bi-plus-circle me-2"></i>إضافة طالب جديد
+    </a>
+    @Html.AntiForgeryToken()
+
+    <!-- Search Filters -->
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                        <input type="text" class="form-control search-input" data-column="StudentNumber" placeholder="رقم الطالب" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" class="form-control search-input" data-column="FullName" placeholder="الاسم الكامل" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                        <input type="text" class="form-control search-input" data-column="NationalId" placeholder="الرقم القومي" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="text" class="form-control search-input" data-column="Email" placeholder="البريد الإلكتروني" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-building"></i></span>
+                        <input type="text" class="form-control search-input" data-column="Department" placeholder="القسم" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-book"></i></span>
+                        <select class="form-select search-input" data-column="AcademicLevel">
+                            <option value="">جميع المستويات</option>
+                            @foreach (var level in Enum.GetValues(typeof(AcademicLevel)))
+                            {
+                                <option value="@level">@level</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-check-circle"></i></span>
+                        <select class="form-select search-input" data-column="StudentStatus">
+                            <option value="">جميع الحالات</option>
+                            @foreach (var status in Enum.GetValues(typeof(StudentStatus)))
+                            {
+                                <option value="@status">@status</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Cards Container -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="studentCards">
+        @await Html.PartialAsync("_StudentsCards", Model.Students)
+    </div>
+
+    
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Debounce function
+            function debounce(func, wait, immediate) {
+                var timeout;
+                return function() {
+                    var context = this, args = arguments;
+                    var later = function() {
+                        timeout = null;
+                        if (!immediate) func.apply(context, args);
+                    };
+                    var callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) func.apply(context, args);
+                };
+            }
+
+            // Search function
+            function performSearch() {
+                var filter = {
+                    StudentNumber: $('[data-column="StudentNumber"]').val(),
+                    FullName: $('[data-column="FullName"]').val(),
+                    NationalId: $('[data-column="NationalId"]').val(),
+                    Email: $('[data-column="Email"]').val(),
+                    Department: $('[data-column="Department"]').val(),
+                    AcademicLevel: $('[data-column="AcademicLevel"]').val() || null,
+                    StudentStatus: $('[data-column="StudentStatus"]').val() || null
+                };
+
+                $.ajax({
+                    url: '@Url.Action("SearchStudents", "Students")',
+                    type: 'GET',
+                    data: filter,
+                    beforeSend: function() {
+                        $('#studentCards').html('<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">جاري التحميل...</span></div></div>');
+                    },
+                    success: function (result) {
+                        $('#studentCards').html(result);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        $('#studentCards').html('<div class="col-12"><div class="alert alert-danger text-center">حدث خطأ أثناء جلب البيانات</div></div>');
+                    }
+                });
+            }
+
+            // Bind search events
+            $('.search-input').on('input change', debounce(performSearch, 300));
+
+                    // Delete button click handler with event delegation
+        $(document).on('click', '.delete-btn', function() {
+            var studentId = $(this).data('id');
+            var studentName = $(this).data('name');
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            // Validate studentId
+            var parsedId = parseInt(studentId);
+            if (!Number.isInteger(parsedId)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ',
+                    text: 'معرف الطالب غير صالح',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+
+            // Show SweetAlert confirmation
+            Swal.fire({
+                title: 'تأكيد الحذف',
+                html: `<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>هل أنت متأكد أنك تريد حذف الطالب
+                        <br>
+                        <strong>${studentName}</strong> ?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'نعم، احذفه!',
+                cancelButtonText: 'إلغاء',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return $.ajax({
+                        url: '@Url.Action("Delete", "Students")',
+                        type: 'POST',
+                        data: {
+                            id: parsedId,
+                            __RequestVerificationToken: token
+                        }
+                    }).then(function(response) {
+                        if (!response.success) {
+                            throw new Error(response.error || 'حدث خطأ أثناء الحذف');
+                        }
+                        return response;
+                    }).catch(function(error) {
+                        Swal.showValidationMessage(
+                            `Request failed: ${error.statusText || error.message}`
+                        );
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (result.value.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'تم الحذف!',
+                            text: 'تم حذف الطالب بنجاح',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            performSearch(); // Refresh the data
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ',
+                            text: result.value.error || 'حدث خطأ أثناء الحذف',
+                            confirmButtonText: 'حسناً'
+                        });
+                    }
+                }
+            });
+        });
+        //END OF SEARCH
+        });
+    </script>
+}

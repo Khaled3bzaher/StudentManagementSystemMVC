@@ -1,0 +1,95 @@
+﻿@model CourseViewModel
+
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-book me-2"></i>Course Details</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model == null)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>No course found.
+                        </div>
+                    }
+                    else
+                    {
+                        <dl class="row mb-0">
+                            <!-- Code -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-code me-2"></i>@Html.DisplayNameFor(model => model.Code)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.Code)</dd>
+
+                            <!-- Name -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-bookmark me-2"></i>@Html.DisplayNameFor(model => model.Name)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+                            <!-- Credit Hour -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-clock me-2"></i>@Html.DisplayNameFor(model => model.CreditHour)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.CreditHour)</dd>
+
+                            <!-- Department -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-building me-2"></i>@Html.DisplayNameFor(model => model.Department)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.Department)</dd>
+
+                            <!-- Is Common -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-toggle-on me-2"></i>@Html.DisplayNameFor(model => model.isCommon)
+                            </dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-@(Model.isCommon ? "success" : "danger")">
+                                    @(Model.isCommon ? "Yes" : "No")
+                                </span>
+                            </dd>
+
+                            <!-- Is Active -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-toggle-on me-2"></i>@Html.DisplayNameFor(model => model.isActive)
+                            </dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-@(Model.isActive ? "success" : "danger")">
+                                    @(Model.isActive ? "Active" : "Inactive")
+                                </span>
+                            </dd>
+
+                            <!-- Prerequisite Course -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-link-45deg me-2"></i>@Html.DisplayNameFor(model => model.PrerequisiteCourse)
+                            </dt>
+                            <dd class="col-sm-9">
+                                @(Model.PrerequisiteCourse ?? "None")
+                            </dd>
+                        </dl>
+                    }
+                </div>
+                @if (Model != null)
+                {
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="bi bi-pencil-square me-2"></i>Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

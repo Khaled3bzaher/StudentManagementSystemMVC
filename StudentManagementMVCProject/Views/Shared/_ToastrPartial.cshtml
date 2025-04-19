@@ -1,0 +1,26 @@
+﻿<link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+<script src="~/lib/toastr.js/toastr.min.js"></script>
+
+<script>
+    $(function () {
+        var toastType = '@TempData["ToastType"]';
+        var toastMessage = '@TempData["ToastMessage"]';
+
+        if (toastMessage) {
+            switch (toastType) {
+                case 'success':
+                    toastr.success(toastMessage);
+                    break;
+                case 'error':
+                    toastr.error(toastMessage);
+                    break;
+                case 'info':
+                    toastr.info(toastMessage);
+                    break;
+                case 'warning':
+                    toastr.warning(toastMessage);
+                    break;
+            }
+        }
+    });
+</script>

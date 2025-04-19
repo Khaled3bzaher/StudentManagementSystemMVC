@@ -1,0 +1,32 @@
+## Build results
+bin/
+obj/
+*.dll
+*.exe
+
+## User-specific files
+*.user
+*.suo
+
+## Visual Studio
+.vs/
+
+## VS Code
+.vscode/
+
+## ASP.NET config
+appsettings.json
+appsettings.Development.json
+
+
+
+## Logs
+*.log
+
+## Entity Framework Migrations Snapshots
+*Migrations/*.Designer.cs
+
+## Others
+*.db
+*.pdb
+*.bak

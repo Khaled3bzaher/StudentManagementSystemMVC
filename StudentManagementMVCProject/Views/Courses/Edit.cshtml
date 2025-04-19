@@ -1,0 +1,111 @@
+﻿@model StudentManagementMVCProject.Models.Course
+
+@{
+    ViewData["Title"] = "Edit Course";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Course</h4>
+                </div>
+                <div class="card-body">
+                    
+
+                    <form asp-action="Edit" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Code -->
+                        <div class="mb-3">
+                            <label asp-for="Code" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-code"></i></span>
+                                <input asp-for="Code" class="form-control" placeholder="Enter course code" />
+                            </div>
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-bookmark"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="Enter course name" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Credit Hour -->
+                        <div class="mb-3">
+                            <label asp-for="CreditHour" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                                <input asp-for="CreditHour" class="form-control" type="number" min="1" max="4" placeholder="Enter credit hours" />
+                            </div>
+                            <span asp-validation-for="CreditHour" class="text-danger"></span>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="mb-3">
+                            <label asp-for="DepartmentId" class="form-label fw-bold"></label>
+                            <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.DepartmentId">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Is Common -->
+                        <div class="mb-3 form-check">
+                            <input asp-for="isCommon" class="form-check-input" id="isCommon" />
+                            <label class="form-check-label" for="isCommon">@Html.DisplayNameFor(model => model.isCommon)</label>
+                        </div>
+
+                        <!-- Is Active -->
+                        <div class="mb-3 form-check">
+                            <input asp-for="isActive" class="form-check-input" id="isActive" />
+                            <label class="form-check-label" for="isActive">@Html.DisplayNameFor(model => model.isActive)</label>
+                        </div>
+
+                        <!-- Prerequisite Course -->
+                        <div class="mb-3">
+                            <label asp-for="PrerequisiteCourseId" class="form-label fw-bold"></label>
+                            <select asp-for="PrerequisiteCourseId" class="form-select" asp-items="ViewBag.PrerequisiteCourseId">
+                                <option value="">-- Select Prerequisite Course (Optional) --</option>
+                            </select>
+                            <span asp-validation-for="PrerequisiteCourseId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit and Cancel Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i>Save
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Automatically dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                }, 5000);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,353 @@
+﻿@model Semester
+@{
+    ViewData["Title"] = "إضافة/تعديل مقررات الفصل الدراسي";
+    var courses = ViewData["Courses"] as List<CourseDropDownItemsViewModel>;
+    var teachers = ViewData["Teachers"] as List<TeacherNameViewModel>;
+    var existingCourses = ViewData["ExistingCourses"] as List<CourseTeacher>;
+}
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h2 class="mb-0">
+                <i class="bi bi-book-half me-2"></i> @ViewData["Title"]
+            </h2>
+            <h4 class="mt-2 mb-0">@Model.Name - @Model.AcademicYear.Name</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="AddSemesterCourses" method="post" class="needs-validation" novalidate>
+                <input type="hidden" name="SemesterId" value="@Model.Id" />
+                <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken()" />
+
+                <!-- عدادات -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm border-primary">
+                            <div class="card-body text-center">
+                                <i class="bi bi-journal-text display-4 text-primary mb-2"></i>
+                                <h5 class="card-title text-primary" id="coursesCount">0</h5>
+                                <p class="card-text text-muted">المقررات المختارة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm border-success">
+                            <div class="card-body text-center">
+                                <i class="bi bi-person-gear display-4 text-success mb-2"></i>
+                                <h5 class="card-title text-success" id="teachersCount">0</h5>
+                                <p class="card-text text-muted">المعلمين المختارين</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- جدول المقررات -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table me-2"></i> إدارة المقررات والمعلمين
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="coursesTable">
+                            @if (existingCourses != null && existingCourses.Any())
+                            {
+                                for (int i = 0; i < existingCourses.Count; i++)
+                                {
+                                    <div class="course-row mb-3">
+                                        <div class="shadow-sm bg-light rounded p-3 transition-hover">
+                                            <input type="hidden" name="CourseTeacherPairs[@i].ScheduleId" value="@existingCourses[i].ScheduleId" />
+                                            <div class="row align-items-end">
+                                                <div class="col-md-5">
+                                                    <label class="form-label">
+                                                        <i class="bi bi-book me-1"></i> المقرر الدراسي
+                                                    </label>
+                                                    <select class="form-select course-select" name="CourseTeacherPairs[@i].CourseId" required>
+                                                        <option value="">-- اختر المقرر --</option>
+                                                        @foreach (var course in courses)
+                                                        {
+                                                            <option value="@course.Id" selected="@(course.Id == existingCourses[i].CourseId)">@course.Name</option>
+                                                        }
+                                                    </select>
+                                                    <div class="invalid-feedback">يجب اختيار المقرر</div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <label class="form-label">
+                                                        <i class="bi bi-person me-1"></i> المعلم
+                                                    </label>
+                                                    <select class="form-select teacher-select" name="CourseTeacherPairs[@i].TeacherId" required>
+                                                        <option value="">-- اختر المعلم --</option>
+                                                        @foreach (var teacher in teachers)
+                                                        {
+                                                            <option value="@teacher.Id" selected="@(teacher.Id == existingCourses[i].TeacherId)">@teacher.FullName</option>
+                                                        }
+                                                    </select>
+                                                    <div class="invalid-feedback">يجب اختيار المعلم</div>
+                                                </div>
+                                                <div class="col-md-2 text-center">
+                                                    <button type="button" class="btn btn-outline-danger remove-row @(existingCourses.Count <= 1 ? "d-none" : "")">
+                                                        <i class="bi bi-trash"></i> حذف
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="course-row mb-3">
+                                    <div class="shadow-sm bg-light rounded p-3 transition-hover">
+                                        <input type="hidden" name="CourseTeacherPairs[0].ScheduleId" value="0" />
+                                        <div class="row align-items-end">
+                                            <div class="col-md-5">
+                                                <label class="form-label">
+                                                    <i class="bi bi-book me-1"></i> المقرر الدراسي
+                                                </label>
+                                                <select class="form-select course-select" name="CourseTeacherPairs[0].CourseId" required>
+                                                    <option value="">-- اختر المقرر --</option>
+                                                    @foreach (var course in courses)
+                                                    {
+                                                        <option value="@course.Id">@course.Name</option>
+                                                    }
+                                                </select>
+                                                <div class="invalid-feedback">يجب اختيار المقرر</div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label">
+                                                    <i class="bi bi-person me-1"></i> المعلم
+                                                </label>
+                                                <select class="form-select teacher-select" name="CourseTeacherPairs[0].TeacherId" required>
+                                                    <option value="">-- اختر المعلم --</option>
+                                                    @foreach (var teacher in teachers)
+                                                    {
+                                                        <option value="@teacher.Id">@teacher.FullName</option>
+                                                    }
+                                                </select>
+                                                <div class="invalid-feedback">يجب اختيار المعلم</div>
+                                            </div>
+                                            <div class="col-md-2 text-center">
+                                                <button type="button" class="btn btn-outline-danger remove-row d-none">
+                                                    <i class="bi bi-trash"></i> حذف
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الأزرار -->
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button type="button" id="addRowBtn" class="btn btn-outline-success me-2" disabled>
+                            <i class="bi bi-plus-circle me-1"></i> إضافة مقرر جديد
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i> حفظ التغييرات
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let rowIndex = @(existingCourses?.Count ?? 1);
+            const maxCourses = 10;
+
+            // تحديث العدادات
+            function updateCounters() {
+                const courseCount = $('.course-select').filter(function () {
+                    return $(this).val() && $(this).val() !== '';
+                }).length;
+
+                const teacherCount = new Set(
+                    $('.teacher-select')
+                        .map(function () {
+                            const val = $(this).val();
+                            return val && val !== '' ? val : null;
+                        })
+                        .get()
+                        .filter(Boolean)
+                ).size;
+
+                $('#coursesCount').text(courseCount);
+                $('#teachersCount').text(teacherCount);
+            }
+
+            // التحقق من اكتمال جميع الصفوف
+            function validateAllRows() {
+                let allComplete = true;
+                $('.course-row').each(function () {
+                    const courseSelect = $(this).find('.course-select');
+                    const teacherSelect = $(this).find('.teacher-select');
+                    const courseSelected = courseSelect.val() && courseSelect.val() !== '';
+                    const teacherSelected = teacherSelect.val() && teacherSelect.val() !== '';
+
+                    if (!courseSelected || !teacherSelected) {
+                        allComplete = false;
+                        return false;
+                    }
+                });
+
+                $('#addRowBtn').prop('disabled', !allComplete || $('.course-row').length >= maxCourses);
+                return allComplete;
+            }
+
+            // تحديث خيارات المقررات (منع التكرار)
+            function updateCourseOptions() {
+                $('.course-select option').prop('disabled', false);
+
+                const selectedCourses = $('.course-select')
+                    .map(function () {
+                        const val = $(this).val();
+                        return val && val !== '' ? val : null;
+                    })
+                    .get()
+                    .filter(Boolean);
+
+                $('.course-select').each(function () {
+                    const currentSelect = $(this);
+                    const currentValue = currentSelect.val();
+                    selectedCourses.forEach(function (courseId) {
+                        if (courseId !== currentValue) {
+                            currentSelect.find(`option[value="${courseId}"]`).prop('disabled', true);
+                        }
+                    });
+                });
+            }
+
+            // إضافة صف جديد
+            function addRow() {
+                if ($('#addRowBtn').is(':disabled') || !validateAllRows()) {
+                    return;
+                }
+
+                const newRow = $('.course-row:first').clone(true, true);
+                const newIndex = rowIndex++;
+
+                // تحديث أسماء الحقول
+                newRow.find('input, select').each(function () {
+                    const name = $(this).attr('name')?.replace(/\[\d+\]/, `[${newIndex}]`) || '';
+                    $(this).attr('name', name).val('');
+                });
+
+                // إعادة تعيين الحقول وإزالة التحقق من الصحة
+                newRow.find('.form-select').removeClass('is-valid is-invalid');
+                newRow.find('.invalid-feedback').hide();
+                newRow.find('.remove-row').removeClass('d-none');
+
+                // إضافة الصف إلى الجدول
+                $('#coursesTable').append(newRow);
+
+                // تحديث الخيارات والتحقق
+                updateCourseOptions();
+                validateAllRows();
+                updateCounters();
+            }
+
+            // حذف صف
+            function removeRow(button) {
+                if ($('.course-row').length <= 1) {
+                    alert('يجب أن يكون هناك مقرر واحد على الأقل');
+                    return;
+                }
+
+                const row = $(button).closest('.course-row');
+                row.remove();
+
+                // إعادة ترقيم الصفوف
+                $('.course-row').each(function (index) {
+                    $(this).find('input, select').each(function () {
+                        const name = $(this).attr('name')?.replace(/\[\d+\]/, `[${index}]`) || '';
+                        $(this).attr('name', name);
+                    });
+                });
+
+                rowIndex = $('.course-row').length;
+
+                // إخفاء زر الحذف إذا بقي صف واحد
+                if ($('.course-row').length === 1) {
+                    $('.remove-row').addClass('d-none');
+                }
+
+                updateCounters();
+                validateAllRows();
+                updateCourseOptions();
+            }
+
+            // التعامل مع التغييرات في القوائم المنسدلة
+            $(document).on('change', '.course-select, .teacher-select', function () {
+                const row = $(this).closest('.course-row');
+                const courseSelect = row.find('.course-select');
+                const teacherSelect = row.find('.teacher-select');
+
+                // تحديث حالة التحقق
+                if (courseSelect.val()) {
+                    courseSelect.removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    courseSelect.removeClass('is-valid').addClass('is-invalid');
+                }
+
+                if (teacherSelect.val()) {
+                    teacherSelect.removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    teacherSelect.removeClass('is-valid').addClass('is-invalid');
+                }
+
+                updateCourseOptions();
+                validateAllRows();
+                updateCounters();
+            });
+
+            // إضافة صف جديد عند النقر
+            $('#addRowBtn').on('click', addRow);
+
+            // حذف صف عند النقر
+            $(document).on('click', '.remove-row', function () {
+                removeRow(this);
+            });
+
+            // التحقق من صحة النموذج عند الإرسال
+            $('form.needs-validation').on('submit', function (e) {
+                const form = this;
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $('.course-select, .teacher-select').each(function () {
+                        if (!$(this).val()) {
+                            $(this).addClass('is-invalid');
+                        }
+                    });
+                }
+                $(form).addClass('was-validated');
+            });
+
+            // التهيئة الأولية
+            updateCounters();
+            validateAllRows();
+            updateCourseOptions();
+
+            if ($('.course-row').length === 1) {
+                $('.remove-row').addClass('d-none');
+            }
+        });
+    </script>
+
+    <style>
+        .transition-hover {
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .transition-hover:hover {
+                background-color: #f8f9fa;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+    </style>
+}

@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<div class="container py-4 text-center" dir="rtl">
+    <h1 class="display-5 fw-bold mb-2">مرحبًا بكم</h1>
+    <p class="lead mb-3">في نظام إدارة الطلاب باستخدام .NET Core MVC</p>
+
+    <div class="row g-3 mt-3">
+        <!-- عدد الطلاب -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-effect">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-people fs-2 text-primary mb-2"></i>
+                    <h6 class="card-title fw-bold mb-1">عدد الطلاب</h6>
+                    <h4 class="card-text text-primary mb-0">@ViewData["StudentCount"]</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- عدد المعلمين -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-effect">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-person-workspace fs-2 text-success mb-2"></i>
+                    <h6 class="card-title fw-bold mb-1">عدد المعلمين</h6>
+                    <h4 class="card-text text-success mb-0">@ViewData["TeacherCount"]</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- عدد المقررات -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-effect">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-book fs-2 text-warning mb-2"></i>
+                    <h6 class="card-title fw-bold mb-1">عدد المقررات</h6>
+                    <h4 class="card-text text-warning mb-0">@ViewData["CourseCount"]</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- عدد الأقسام -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-effect">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-building fs-2 text-danger mb-2"></i>
+                    <h6 class="card-title fw-bold mb-1">عدد الأقسام</h6>
+                    <h4 class="card-text text-danger mb-0">@ViewData["DepartmentCount"]</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- معلومات الفصل الدراسي الحالي -->
+    <div class="row g-3 mt-3">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white py-2">
+                    <h6 class="mb-0"><i class="bi bi-calendar3 me-2"></i>الفصل الدراسي الحالي</h6>
+                </div>
+                <div class="card-body py-3">
+                    <h5 class="card-title fw-bold mb-2">@ViewData["CurrentSemesterName"]</h5>
+                    <p class="card-text small mb-0">تاريخ بداية الفصل: @ViewData["SemesterStartDate"] حتى @ViewData["SemesterEndDate"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transition-effect {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .transition-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .card {
+        border-radius: 0.5rem;
+    }
+
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+</style>

@@ -1,0 +1,31 @@
+﻿@model RegistrationConfirmationViewModel
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4>Registration Confirmation</h4>
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <h5>You have successfully registered for the following courses:</h5>
+
+            <ul class="list-group mt-3">
+                @foreach (var course in Model.RegisteredCourses)
+                {
+                    <li class="list-group-item">@course</li>
+                }
+            </ul>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Index" asp-controller="Home" class="btn btn-primary">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>

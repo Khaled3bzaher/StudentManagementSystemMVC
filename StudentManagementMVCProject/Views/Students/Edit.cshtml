@@ -1,0 +1,169 @@
+﻿@model StudentEditViewModel
+@{
+    ViewData["Title"] = $"Edit {Model.FirstName} Profile";
+
+}
+<div class="container mt-5">
+    <div class="card-header bg-primary text-white text-center">
+        <h4 class="mb-0">Edit Student Profile</h4>
+    </div>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+        <!-- Profile Picture Section -->
+        <input type="hidden" asp-for="ProfilePictureURL" />
+        <input type="hidden" asp-for="Id" />
+        <div class="row mb-4">
+            <div class="col-md-4 text-center">
+                <label class="form-label fw-bold">Current Profile Picture</label>
+                <div class="mb-3">
+                    <img id="ProfileImage" src="@(!string.IsNullOrEmpty(Model.ProfilePictureURL) ? Model.ProfilePictureURL : "/images/profiles/default.jpg")"
+                         alt="Profile Image" class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;" />
+                </div>
+                <label for="NewProfilePicture" class="form-label">Upload New Picture</label>
+                <input type="file" asp-for="NewProfilePicture" class="form-control" id="NewProfilePicture" onchange="previewImage(event)" />
+            </div>
+            <div class="col-md-8">
+                <!-- Personal Information -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="StudentNumber" class="form-label">Student Number</label>
+                        <input asp-for="StudentNumber" class="form-control" maxlength="14" />
+                        <span asp-validation-for="StudentNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="NationalId" class="form-label">National ID</label>
+                        <input asp-for="NationalId" class="form-control" maxlength="14" />
+                        <span asp-validation-for="NationalId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="FirstName" class="form-label">First Name</label>
+                        <input asp-for="FirstName" class="form-control" maxlength="50" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="LastName" class="form-label">Last Name</label>
+                        <input asp-for="LastName" class="form-control" maxlength="50" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="PhoneNumber" class="form-label">Phone Number</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ParentPhone" class="form-label">Parent Phone</label>
+                        <input asp-for="ParentPhone" class="form-control" maxlength="11" />
+                        <span asp-validation-for="ParentPhone" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="DateOfBirth" class="form-label">Date of Birth</label>
+                        <input asp-for="DateOfBirth" type="date" class="form-control" id="DateOfBirth" min="1990-01-01" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Address" class="form-label">Address</label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label for="DepartmentId" class="form-label">Department</label>
+                <select asp-for="DepartmentId" class="form-select" asp-items="@ViewData["Departments"] as SelectList">
+                    <option value="">Select Department</option>
+                </select>
+                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-select" asp-items="@ViewData["StudentStatus"] as SelectList" id="Status" onchange="handleStatusChange()">
+                    <option value="">Select Status</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="col-md-4" id="AcademicLevelGroup">
+                <label for="Level" class="form-label">Academic Level</label>
+                <select asp-for="AcademicLevel" class="form-select" asp-items="@ViewData["AcademicLevel"] as SelectList">
+                    <option value="">Select Level</option>
+                </select>
+                <span asp-validation-for="AcademicLevel" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+                <label for="NewPassword" class="form-label">New Password</label>
+                <input asp-for="NewPassword" type="password" class="form-control" />
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="col-md-12">
+                <div class="form-check">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                    <label for="IsActive" class="form-check-label">Is Active</label>
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('ProfileImage');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+
+
+        function handleStatusChange() {
+            var status = document.getElementById("Status").value;
+            var levelGroup = document.getElementById("AcademicLevelGroup");
+            var levelSelect = levelGroup.querySelector("select");
+
+            if (status === "2") {
+                levelGroup.style.display = "none";
+                levelSelect.value = "4";
+            } else {
+                levelGroup.style.display = "block";
+                
+            }
+        }
+
+        function handleDateofBirth(){
+            const dateInput = document.getElementById('DateOfBirth');
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD
+            dateInput.setAttribute('max', today); // Set max to today
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            handleStatusChange();
+            handleDateofBirth();
+        });
+    </script>
+}

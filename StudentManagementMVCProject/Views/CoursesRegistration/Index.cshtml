@@ -1,0 +1,261 @@
+﻿@model RegistrationViewModel
+
+<!-- أضف Bootstrap Icons في الجزء العلوي من الصفحة -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary"><i class="bi bi-journal-bookmark me-2"></i>تسجيل المقررات الدراسية</h2>
+                <hr class="w-25 mx-auto my-3">
+            </div>
+
+            @if (Model == null || Model.Semester == null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Error :</strong> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            else
+            {
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="card mb-4 border-danger shadow-sm">
+                        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-x-circle me-2"></i>التسجيل غير متاح حالياً
+                            </h5>
+                            <i class="bi bi-exclamation-triangle fs-4"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger d-flex align-items-center mb-3">
+                                <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
+                                <div>@TempData["ErrorMessage"]</div>
+                            </div>
+                            <div class="alert alert-info d-flex">
+                                <i class="bi bi-info-circle me-3 fs-4"></i>
+                                <div>
+                                    <p class="mb-1"><strong>الفصل الدراسي:</strong> @Model.Semester.Name</p>
+                                    <p class="mb-0"><strong>فترة التسجيل:</strong> من @Model.Semester.CourseRegistrationStartDate.ToString("yyyy-MM-dd") إلى @Model.Semester.CourseRegistrationEndDate.ToString("yyyy-MM-dd")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- معلومات التسجيل -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-info-circle me-2"></i>معلومات التسجيل</span>
+                                <i class="bi bi-person-vcard"></i>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light p-3 rounded me-3">
+                                            <i class="bi bi-clock text-primary fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 text-muted">الحد الأقصى للساعات</h6>
+                                            <p class="mb-0 fw-bold fs-5">@Model.AllowedCreditHours ساعة</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light p-3 rounded me-3">
+                                            <i class="bi bi-calendar-week text-primary fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 text-muted">الفصل الدراسي</h6>
+                                            <p class="mb-0 fw-bold fs-5">@Model.Semester.Name</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light p-3 rounded me-3">
+                                            <i class="bi bi-calendar-check text-primary fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 text-muted">فترة التسجيل</h6>
+                                            <p class="mb-0 fw-bold fs-5">
+                                                @Model.Semester.CourseRegistrationStartDate.ToString("yyyy-MM-dd")<br>
+                                                إلى @Model.Semester.CourseRegistrationEndDate.ToString("yyyy-MM-dd")
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Register" method="post">
+                        <input type="hidden" asp-for="Semester.Id" />
+                        <input type="hidden" asp-for="Semester.Name" />
+
+                        <!-- المقررات المتاحة -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-journal-text me-2"></i>المقررات المتاحة</span>
+                                    <i class="bi bi-list-ol"></i>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.AvailableCourses != null && Model.AvailableCourses.Any())
+                                {
+                                    <div class="row g-4">
+                                        @foreach (var course in Model.AvailableCourses)
+                                        {
+                                            <div class="col-md-6 col-lg-4">
+                                                <div class="card h-100 course-card" data-hours="@course.CreditHour">
+                                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                                        <h6 class="mb-0 fw-bold"><i class="bi bi-bookmark me-2"></i>@course.Code</h6>
+                                                        <div class="form-check form-switch">
+                                                            <input type="checkbox"
+                                                                   name="SelectedCourseIds"
+                                                                   value="@course.Id"
+                                                                   class="form-check-input course-checkbox"
+                                                                   data-hours="@course.CreditHour"
+                                                                   id="course-@course.Id">
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h5 class="card-title"><i class="bi bi-journal me-2"></i>@course.Name</h5>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-muted"><i class="bi bi-clock me-2"></i>الساعات:</span>
+                                                            <span class="badge bg-primary rounded-pill">@course.CreditHour</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-muted"><i class="bi bi-building me-2"></i>القسم:</span>
+                                                            <span>@course.Department</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-muted"><i class="bi bi-link-45deg me-2"></i>المتطلب:</span>
+                                                            @if (!string.IsNullOrEmpty(course.PrerequisiteCourse))
+                                                            {
+                                                                <span class="badge bg-secondary">@course.PrerequisiteCourse</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted">لا يوجد</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="alert alert-info mt-4 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-clock me-2"></i>
+                                            <strong>إجمالي الساعات المختارة:</strong>
+                                            <span id="totalHours" class="fw-bold">0</span> / @Model.AllowedCreditHours
+                                        </div>
+                                        <div id="hoursStatus"></div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning d-flex align-items-center">
+                                        <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
+                                        <div>
+                                            <h5 class="alert-heading">لا توجد مقررات متاحة للتسجيل</h5>
+                                            <p class="mb-0">يرجى مراجعة الإدارة الأكاديمية لمزيد من المعلومات.</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer bg-light">
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary px-4 py-2" id="submitButton" @(Model.AvailableCourses != null && Model.AvailableCourses.Any() ? "" : "disabled")>
+                                        <i class="bi bi-save me-2"></i>تسجيل المقررات المختارة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const maxHours = @Model?.AllowedCreditHours ?? 0;
+            const submitButton = $('#submitButton');
+            const hoursStatus = $('#hoursStatus');
+
+            // حساب الساعات المختارة
+            $('.course-checkbox').change(function () {
+                calculateTotalHours();
+                updateCardStyle(this);
+            });
+
+            function updateCardStyle(checkbox) {
+                const card = $(checkbox).closest('.course-card');
+                if ($(checkbox).is(':checked')) {
+                    card.addClass('border-primary').css('box-shadow', '0 0 0 2px rgba(13, 110, 253, 0.25)');
+                } else {
+                    card.removeClass('border-primary').css('box-shadow', '');
+                }
+            }
+
+            function calculateTotalHours() {
+                let total = 0;
+
+                $('.course-checkbox:checked').each(function () {
+                    total += parseInt($(this).data('hours')) || 0;
+                });
+
+                $('#totalHours').text(total);
+
+                // تغيير حالة الساعات
+                if (total === 0) {
+                    hoursStatus.html('<span class="text-muted"><i class="bi bi-info-circle me-1"></i>لم يتم اختيار أي مقررات</span>');
+                } else if (total > maxHours) {
+                    hoursStatus.html('<span class="text-danger"><i class="bi bi-x-circle me-1"></i>تجاوز الحد المسموح</span>');
+                    $('#totalHours').addClass('text-danger');
+                    $('#totalHours').removeClass('text-success');
+                } else if (total === maxHours) {
+                    hoursStatus.html('<span class="text-success"><i class="bi bi-check-circle me-1"></i>الحد الأقصى</span>');
+                    $('#totalHours').addClass('text-success');
+                    $('#totalHours').removeClass('text-danger');
+                } else {
+                    hoursStatus.html('<span class="text-success"><i class="bi bi-check-circle me-1"></i>ضمن الحد المسموح</span>');
+                    $('#totalHours').addClass('text-success');
+                    $('#totalHours').removeClass('text-danger');
+                }
+
+                // تعطيل زر الإرسال إذا لم يتم اختيار أي مقررات أو تجاوز الحد
+                submitButton.prop('disabled', total === 0 || total > maxHours);
+
+                // تغيير مظهر الزر
+                if (submitButton.prop('disabled')) {
+                    submitButton.removeClass('btn-primary').addClass('btn-secondary');
+                } else {
+                    submitButton.removeClass('btn-secondary').addClass('btn-primary');
+                }
+            }
+
+            // تحديث أنماط البطاقات عند التحميل
+            $('.course-checkbox').each(function() {
+                updateCardStyle(this);
+            });
+
+            // حساب الساعات عند التحميل
+            calculateTotalHours();
+        });
+    </script>
+}

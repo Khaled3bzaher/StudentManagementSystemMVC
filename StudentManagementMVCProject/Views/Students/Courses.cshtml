@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "مقررات الطالب";
+    var studentId = (int)ViewData["StudentId"];
+    var studentName = (string)ViewData["StudentName"];
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+            <i class="bi bi-mortarboard-fill me-2"></i>
+            <h2 class="card-title mb-0">مقررات الطالب: @studentName</h2>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="academicYearId" class="form-label">
+                        <i class="bi bi-calendar3 me-1"></i> السنة الأكاديمية
+                    </label>
+                    <select id="academicYearId" class="form-select" onchange="loadSemesters()">
+                        <option value="">اختر السنة الأكاديمية</option>
+                        @foreach (var year in (SelectList)ViewData["AcademicYears"])
+                        {
+                            <option value="@year.Value">@year.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="semesterId" class="form-label">
+                        <i class="bi bi-book-half me-1"></i> الفصل الدراسي
+                    </label>
+                    <select id="semesterId" class="form-select">
+                        <option value="">اختر الفصل الدراسي</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="loadCourses()" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i> عرض المقررات
+            </button>
+        </div>
+    </div>
+
+    <div id="coursesContainer" class="row g-4"></div>
+
+    <div class="mt-4">
+        <a asp-action="Details" asp-route-id="@studentId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right-circle me-1"></i> العودة إلى تفاصيل الطالب
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadSemesters() {
+            var academicYearId = $("#academicYearId").val();
+            $("#coursesContainer").empty();
+            if (academicYearId) {
+                $.ajax({
+                    url: '@Url.Action("GetSemestersByAcademicYearId", "Students")',
+                    type: 'GET',
+                    data: { academicYearId: academicYearId },
+                    success: function (data) {
+                        var semesterDropdown = $("#semesterId");
+                        semesterDropdown.empty();
+                        semesterDropdown.append('<option value="">اختر الفصل الدراسي</option>');
+                        $.each(data, function (index, item) {
+                            semesterDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                        });
+                    },
+                    error: function () {
+                        $("#semesterId").empty().append('<option value="">اختر الفصل الدراسي</option>');
+                        $("#coursesContainer").html('<div class="alert alert-danger">حدث خطأ أثناء تحميل الفصول الدراسية.</div>');
+                    }
+                });
+            } else {
+                $("#semesterId").empty().append('<option value="">اختر الفصل الدراسي</option>');
+            }
+        }
+
+        function loadCourses() {
+            var semesterId = $("#semesterId").val();
+            if (semesterId) {
+                $.ajax({
+                    url: '@Url.Action("GetCourses", "Students")',
+                    type: 'POST',
+                    data: { studentId: @studentId, semesterId: semesterId },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (data) {
+                        $("#coursesContainer").html(data);
+                    },
+                    error: function () {
+                        $("#coursesContainer").html('<div class="alert alert-danger">حدث خطأ أثناء تحميل المقررات.</div>');
+                    }
+                });
+            } else {
+                $("#coursesContainer").html('<div class="alert alert-warning">يرجى اختيار فصل دراسي.</div>');
+            }
+        }
+    </script>
+}

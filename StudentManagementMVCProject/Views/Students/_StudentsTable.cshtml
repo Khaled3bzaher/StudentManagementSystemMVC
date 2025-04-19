@@ -1,0 +1,32 @@
+﻿@model IEnumerable<StudentListViewModel>
+
+@if (Model.Any())
+{
+    @foreach (var student in Model)
+    {
+        <tr>
+            <td>@student.StudentNumber</td>
+            <td>@student.FullName</td>
+            <td>@student.NationalId</td>
+            <td>@student.Email</td>
+            <td>@student.Department</td>
+            <td>@student.AcademicLevel</td>
+            <td>@student.StudentStatus</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-primary">تعديل</a>
+                <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-sm btn-info">تفاصيل</a>
+                <button type="button" class="btn btn-danger btn-sm delete-btn"
+                        data-id="@student.Id"
+                        data-name="@student.FullName">
+                    حذف
+                </button>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="8" class="text-center">لا توجد نتائج مطابقة للبحث</td>
+    </tr>
+}
