@@ -50,7 +50,7 @@ Here are some glimpses of the Student Management System in action:
 
 ![Home](screenshots/home.png)  
 ![Course Registration](screenshots/courseRegistration.png)  
-![Students Management](screenshots/students.png)
+![Student Management](screenshots/student.png)
 
 ## 📢 Contact
 If you have any questions, feel free to reach out!  
