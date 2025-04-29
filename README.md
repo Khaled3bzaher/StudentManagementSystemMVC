@@ -4,6 +4,8 @@
 A full-stack web application built with ASP.NET Core MVC (.NET 8) and Entity Framework Core.  
 The system provides full control over student enrollment, course management, academic years, semesters, grades, and user authentication with a focus on performance, clean code, and scalability.
 
+Live Demo : http://studentmanagementsystemmvc.runasp.net/
+
 ## 📋 Project Description
 Student Management System is a web-based platform designed to manage the following:  
 - Students, Instructors, Tracks, and Courses  
