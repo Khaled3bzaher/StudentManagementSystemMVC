@@ -1,57 +1,144 @@
 ﻿@model StudentManagementMVCProject.Models.Semester
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create New Semester";
 }
 
-<h1>Create</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Create New Semester</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <!-- Academic Year -->
+                        <div class="mb-3">
+                            <label asp-for="AcademicYearId" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                <select asp-for="AcademicYearId" class="form-select" asp-items="ViewBag.AcademicYearId">
+                                    <option value="">-- Select Academic Year --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="AcademicYearId" class="text-danger"></span>
+                        </div>
+                        <!-- Semester Name -->
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="e.g. Fall 2023" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
 
-<h4>Semester</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                        <!-- Semester Dates -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                    <input asp-for="StartDate" type="date" class="form-control" id="startDate" />
+                                </div>
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                    <input asp-for="EndDate" type="date" class="form-control" id="endDate" min="" />
+                                </div>
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Registration Dates -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="CourseRegistrationStartDate" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-pencil-square"></i></span>
+                                    <input asp-for="CourseRegistrationStartDate" type="date" class="form-control" id="regStartDate" min="" max="" />
+                                </div>
+                                <span asp-validation-for="CourseRegistrationStartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CourseRegistrationEndDate" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-pencil-square"></i></span>
+                                    <input asp-for="CourseRegistrationEndDate" type="date" class="form-control" id="regEndDate" min="" max="" />
+                                </div>
+                                <span asp-validation-for="CourseRegistrationEndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                       
+
+                        <!-- Submit and Cancel Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i>Create Semester
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseRegistrationStartDate" class="control-label"></label>
-                <input asp-for="CourseRegistrationStartDate" class="form-control" />
-                <span asp-validation-for="CourseRegistrationStartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseRegistrationEndDate" class="control-label"></label>
-                <input asp-for="CourseRegistrationEndDate" class="form-control" />
-                <span asp-validation-for="CourseRegistrationEndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AcademicYearId" class="control-label"></label>
-                <select asp-for="AcademicYearId" class ="form-control" asp-items="ViewBag.AcademicYearId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const regStartDateInput = document.getElementById('regStartDate');
+            const regEndDateInput = document.getElementById('regEndDate');
+
+            // Update date constraints when start date changes
+            startDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    // Set end date min to start date
+                    endDateInput.min = this.value;
+
+                    // Set registration dates range
+                    regStartDateInput.min = this.value;
+                    regStartDateInput.max = endDateInput.value || '';
+
+                    // Update registration end date constraints
+                    if (regStartDateInput.value) {
+                        regEndDateInput.min = regStartDateInput.value;
+                        regEndDateInput.max = endDateInput.value || '';
+                    }
+                }
+            });
+
+            // Update end date max when end date is selected
+            endDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    // Update registration dates max
+                    regStartDateInput.max = this.value;
+
+                    if (regStartDateInput.value) {
+                        regEndDateInput.max = this.value;
+                    }
+                }
+            });
+
+            // Update registration end date constraints when registration start date changes
+            regStartDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    regEndDateInput.min = this.value;
+                    regEndDateInput.max = endDateInput.value || '';
+                }
+            });
+        });
+    </script>
 }

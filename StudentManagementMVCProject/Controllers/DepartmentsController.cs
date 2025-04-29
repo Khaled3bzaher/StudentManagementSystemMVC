@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using StudentManagementMVCProject.ViewModels.Departments;
 
 namespace StudentManagementMVCProject.Controllers
 {
+    [Authorize(Roles ="Admin")]
     public class DepartmentsController : Controller
     {
         private readonly IDepartmentService _departmentService;
@@ -34,28 +36,12 @@ namespace StudentManagementMVCProject.Controllers
             return View(Departments);
         }
 
-        // GET: Departments/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var department = await _departmentService.GetDepartmentByIdAsync(id);
-            if (department == null)
-            {
-                return NotFound();
-            }
-
-            return View(department);
-        }
+       
 
         // GET: Departments/Create
         public async Task<IActionResult> Create()
         {
-            var TeachersName=await _teacherService.GetTeachersNameAsync();
-            ViewData["HeadTeacherID"] = new SelectList(TeachersName, "Id", "FullName");
+            
             return View();
         }
 
@@ -68,10 +54,14 @@ namespace StudentManagementMVCProject.Controllers
             {
                 var Department=_mapper.Map<Department>(model);
                 await _departmentService.AddAsync(Department);
+                TempData["SweetAlertMessage"] = $"Department {Department.Name} Department is Created.!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
                 return RedirectToAction(nameof(Index));
             }
-            var TeachersName = await _teacherService.GetTeachersNameAsync();
-            ViewData["HeadTeacherID"] = new SelectList(TeachersName, "Id", "FullName", model.HeadTeacherID);
+            TempData["SweetAlertMessage"] = $"Error in Creating Department .!";
+            TempData["SweetAlertType"] = "error";
+            TempData["SweetAlertButtonText"] = "متابعة";
             return View(model);
         }
 
@@ -105,11 +95,18 @@ namespace StudentManagementMVCProject.Controllers
             {
                 var Department = _mapper.Map<Department>(model);
                 await _departmentService.UpdateAsync(Department);
+                TempData["SweetAlertMessage"] = $"Department {Department.Name} Department is Edited.!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
                 return RedirectToAction(nameof(Index));
             }
             var TeachersNameInSameDepartment = await _departmentService.GetDepartmentTeachersByIdAsync(model.Id);
 
             ViewData["HeadTeacherID"] = new SelectList(TeachersNameInSameDepartment, "Id", "FullName", model.HeadTeacherID);
+            TempData["SweetAlertMessage"] = $"Error in Editing Department .!";
+            TempData["SweetAlertType"] = "error";
+            TempData["SweetAlertButtonText"] = "متابعة";
+
             return View(model);
         }
 
@@ -140,16 +137,19 @@ namespace StudentManagementMVCProject.Controllers
 
             if (model != null)
             {
-                if (model.DepartmentHeadName != " ")
+                if (model.StudentsCount!= 0 || model.TeachersCount!=0 || model.CoursesCount!=0)
                 {
-                    TempData["StatusMessage"] = $"Error: Can't Delete {model.Name} Department Because it's related.!";
+                    TempData["SweetAlertMessage"] = $"Error: Can't Delete {model.Name} Department Because it's related.!";
+                    TempData["SweetAlertType"] = "error";
+                    TempData["SweetAlertButtonText"] = "متابعة";
                     return View(model);
                 }
                 var Department = _mapper.Map<Department>(model);
                 await _departmentService.DeleteAsync(Department);
             }
-            TempData["StatusMessage"] = $"Department {model.Name} Department is Deleted.!";
-
+            TempData["SweetAlertMessage"] = $"Department {model.Name} Department is Deleted.!";
+            TempData["SweetAlertType"] = "success";
+            TempData["SweetAlertButtonText"] = "متابعة";
             return RedirectToAction(nameof(Index));
         }
 

@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StudentManagementMVCProject.Data;
 using StudentManagementMVCProject.DTOs.Students;
-using StudentManagementMVCProject.Enums;
 using StudentManagementMVCProject.Models;
 using StudentManagementMVCProject.Persistence.GenericRepository;
 using StudentManagementMVCProject.Persistence.UnitOfWork;
@@ -20,13 +18,15 @@ namespace StudentManagementMVCProject.Repositories.Implementations
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         private readonly IFileStorageService _fileStorageService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public StudentService(ApplicationDbContext context,IUnitOfWork unitOfWork,UserManager<User> userManager,IMapper mapper,IFileStorageService fileStorageService) : base(context)
+        public StudentService(ApplicationDbContext context,IUnitOfWork unitOfWork,UserManager<User> userManager,IMapper mapper,IFileStorageService fileStorageService,RoleManager<IdentityRole> roleManager) : base(context)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _fileStorageService = fileStorageService;
+            _roleManager = roleManager;
         }
 
 
@@ -45,6 +45,16 @@ namespace StudentManagementMVCProject.Repositories.Implementations
             {
                 return null;
             }
+            if (!await _roleManager.RoleExistsAsync("Student"))
+            {
+                var role = new IdentityRole("Student") ;
+                var createdRoleResult = await _roleManager.CreateAsync(role);
+                if (!createdRoleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(newUser);
+                    return null;
+                }
+            }
             var roleResult = await _userManager.AddToRoleAsync(newUser, "Student");
             if (!roleResult.Succeeded)
             {
@@ -55,10 +65,14 @@ namespace StudentManagementMVCProject.Repositories.Implementations
             newStudent.UserId=newUser.Id;
             await _unitOfWork.Repository<Student>().AddAsync(newStudent);
             await _unitOfWork.CompleteAsync();
+
+           
+
+          
             return newStudent;
         }
 
-        public async Task<List<StudentListViewModel>> GetFilteredStudentsListAsync(StudentSearchFilterViewModel filter)
+        public async Task<(List<StudentListViewModel> Items, int TotalCount)> GetFilteredStudentsListAsync(StudentSearchFilterViewModel filter)
         {
             var StudentsQuery =  _unitOfWork.Repository<Student>().GetAsQueryAble()
                 .Include(s => s.User).Include(s => s.Department).AsQueryable();
@@ -78,7 +92,14 @@ namespace StudentManagementMVCProject.Repositories.Implementations
             if (filter.StudentStatus.HasValue)
                 StudentsQuery = StudentsQuery.Where(s => s.Status == filter.StudentStatus.Value);
 
-            return await StudentsQuery.ProjectTo<StudentListViewModel>(_mapper.ConfigurationProvider).ToListAsync();
+            var totalCount=await StudentsQuery.CountAsync();
+
+            var students=await StudentsQuery.
+                Skip((filter.PageNumber-1)*filter.PageSize)
+                .Take(filter.PageSize)
+                .ProjectTo<StudentListViewModel>(_mapper.ConfigurationProvider).ToListAsync();
+
+            return (students, totalCount);
 
 
         }
@@ -99,12 +120,31 @@ namespace StudentManagementMVCProject.Repositories.Implementations
             return student.Id;
         }
 
-        public async Task<List<StudentListViewModel>> GetStudentsListAsync()
+        public async Task<Student> GetStudentIdByUserIdAsync(string userId)
         {
-            return await _unitOfWork.Repository<Student>().GetAsQueryAble()
-                .Include(s => s.User).Include(s => s.Department)
+            var student = await GetAsQueryAble().Select(s=> new Student
+            {
+                Id=s.Id,
+                UserId=s.UserId,
+            }).FirstOrDefaultAsync(s => s.UserId== userId);
+            return student;
+        }
+
+        public async Task<(List<StudentListViewModel>,int TotalCount)> GetStudentsListAsync(int pageNumber = 1, int pageSize = 4)
+        {
+            var query = _unitOfWork.Repository<Student>().GetAsQueryAble()
+                .Include(s => s.User).Include(s => s.Department);
+
+            var totalCount = await query.CountAsync();
+
+            var students= await query.
+                Skip((pageNumber-1)*pageSize).
+                Take(pageSize)
                 .ProjectTo<StudentListViewModel>(_mapper.ConfigurationProvider)
                 .ToListAsync();
+
+            return (students, totalCount); 
+                
         }
 
         public async Task<StudentCoursesViewModel?> GetStudentCoursesBySemesterIdAsync(int studentId,int semesterId)
@@ -156,7 +196,6 @@ namespace StudentManagementMVCProject.Repositories.Implementations
                         await _fileStorageService.DeleteImageAsync(student.User.ProfilePictureURL);
                     }
 
-                    // رفع الصورة الجديدة
                     student.User.ProfilePictureURL = await _fileStorageService.UploadImageAsync(model.NewProfilePicture);
                 }
                 catch (Exception ex)

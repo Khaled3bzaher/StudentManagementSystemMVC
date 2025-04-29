@@ -53,14 +53,15 @@ namespace StudentManagementMVCProject.Mapping
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber))
             .ReverseMap()
             .ForMember(dest => dest.User, opt => opt.Ignore()) // Prevent modifying User during Student mapping
-            .ForMember(dest => dest.Id, opt => opt.Ignore()); // Prevent modifying Student.Id
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Prevent modifying Student.Id
+            .ForMember(dest => dest.UserId, opt => opt.Ignore()); // Prevent modifying Student.Id
 
             // Mapping: StudentEditViewModel -> User
             CreateMap<StudentEditViewModel, User>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.NationalId))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Email, opt => opt.Ignore())
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.ProfilePictureURL, opt => opt.Condition(src => src.NewProfilePicture != null || !string.IsNullOrEmpty(src.ProfilePictureURL)))

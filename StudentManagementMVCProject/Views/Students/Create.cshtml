@@ -1,106 +1,150 @@
 ﻿@model AddStudentDTO
 @{
     ViewData["Title"] = $"Create Student";
-
 }
-<div class="container mt-4">
-    <h2 class="mb-4 text-center fw-bold">Create New Student</h2>
+
+
+
+<div class="container mt-5 mb-5">
+    <!-- أضفت mb-5 للهامش السفلي -->
+    <h2 class="mb-4 text-center fw-bold text-primary">Create New Student</h2>
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm p-4">
+            <div class="card shadow-sm border-0 rounded-4 p-4 bg-light">
+                <!-- غيرت shadow-lg إلى shadow-sm -->
                 <form asp-action="Create" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <!-- Personal Information -->
-                    <h5 class="mb-3">Personal Information</h5>
+                    <h5 class="mb-3 text-secondary fw-semibold"><i class="bi bi-person-circle me-2"></i>Personal Information</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label asp-for="FirstName" class="form-label"></label>
-                            <input asp-for="FirstName" class="form-control" maxlength="50" />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                            <label asp-for="FirstName" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
+                                <input asp-for="FirstName" class="form-control border-start-0" maxlength="50" placeholder="Enter first name" />
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="LastName" class="form-label"></label>
-                            <input asp-for="LastName" class="form-control" maxlength="50" />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
+                            <label asp-for="LastName" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
+                                <input asp-for="LastName" class="form-control border-start-0" maxlength="50" placeholder="Enter last name" />
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="NationalId" class="form-label"></label>
-                            <input asp-for="NationalId" class="form-control" maxlength="14" />
-                            <span asp-validation-for="NationalId" class="text-danger"></span>
+                            <label asp-for="NationalId" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-card-text"></i></span>
+                                <input asp-for="NationalId" class="form-control border-start-0" maxlength="14" placeholder="Enter national ID" />
+                            </div>
+                            <span asp-validation-for="NationalId" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="PhoneNumber" class="form-label"></label>
-                            <input asp-for="PhoneNumber" class="form-control" maxlength="11" />
-                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            <label asp-for="PhoneNumber" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control border-start-0" maxlength="11" placeholder="Enter phone number" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="ParentPhone" class="form-label"></label>
-                            <input asp-for="ParentPhone" class="form-control" maxlength="11" />
-                            <span asp-validation-for="ParentPhone" class="text-danger"></span>
+                            <label asp-for="ParentPhone" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-telephone-fill"></i></span>
+                                <input asp-for="ParentPhone" class="form-control border-start-0" maxlength="11" placeholder="Enter parent phone" />
+                            </div>
+                            <span asp-validation-for="ParentPhone" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="DateOfBirth" class="form-label"></label>
-                            <input asp-for="DateOfBirth" class="form-control" type="date" id="DateOfBirth" min="1990-01-01"/>
-                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                            <label asp-for="DateOfBirth" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar"></i></span>
+                                <input asp-for="DateOfBirth" class="form-control border-start-0" type="date" id="DateOfBirth" min="1990-01-01" />
+                            </div>
+                            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
                         </div>
                         <div class="col-12">
-                            <label asp-for="Address" class="form-label"></label>
-                            <input asp-for="Address" class="form-control" />
-                            <span asp-validation-for="Address" class="text-danger"></span>
+                            <label asp-for="Address" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt"></i></span>
+                                <input asp-for="Address" class="form-control border-start-0" placeholder="Enter address" />
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
                         </div>
                     </div>
 
                     <!-- Academic Information -->
-                    <h5 class="mt-4 mb-3">Academic Information</h5>
+                    <h5 class="mt-4 mb-3 text-secondary fw-semibold"><i class="bi bi-book me-2"></i>Academic Information</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label asp-for="StudentNumber" class="form-label"></label>
-                            <input asp-for="StudentNumber" class="form-control" maxlength="14"/>
-                            <span asp-validation-for="StudentNumber" class="text-danger"></span>
+                            <label asp-for="StudentNumber" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-123"></i></span>
+                                <input asp-for="StudentNumber" class="form-control border-start-0" maxlength="14" placeholder="Enter student number" />
+                            </div>
+                            <span asp-validation-for="StudentNumber" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="DepartmentId" class="form-label"></label>
-                            <select asp-for="DepartmentId" class="form-select" asp-items="Model.Departments">
-                                <option value="">Select Department</option>
-                            </select>
-                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                            <label asp-for="DepartmentId" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-building"></i></span>
+                                <select asp-for="DepartmentId" class="form-select border-start-0" asp-items="Model.Departments">
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="DepartmentId" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="Status" class="form-label"></label>
-                            <select asp-for="Status" class="form-select" asp-items="Model.StudentStatus" id="statusDropdown">
-                                <option value="">Select Student Status</option>
-                            </select>
-                            <span asp-validation-for="Status" class="text-danger"></span>
+                            <label asp-for="Status" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-toggle-on"></i></span>
+                                <select asp-for="Status" class="form-select border-start-0" asp-items="Model.StudentStatus" id="statusDropdown">
+                                    <option value="">Select Student Status</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6" id="levelDropdownDiv">
-                            <label asp-for="Level" class="form-label"></label>
-                            <select asp-for="Level" class="form-select" asp-items="Model.AcademicLevel" id="levelDropdown">
-                                <option value="">Select Academic Level</option>
-                            </select>
-                            <span asp-validation-for="Level" class="text-danger"></span>
+                            <label asp-for="Level" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-bar-chart-steps"></i></span>
+                                <select asp-for="Level" class="form-select border-start-0" asp-items="Model.AcademicLevel" id="levelDropdown">
+                                    <option value="">Select Academic Level</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Level" class="text-danger small"></span>
                         </div>
                     </div>
 
                     <!-- Account Information -->
-                    <h5 class="mt-4 mb-3">Account Information</h5>
+                    <h5 class="mt-4 mb-3 text-secondary fw-semibold"><i class="bi bi-shield-lock me-2"></i>Account Information</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <label asp-for="Email" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control border-start-0" placeholder="Enter email" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="Password" class="form-label"></label>
-                            <input asp-for="Password" class="form-control" type="password" />
-                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <label asp-for="Password" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control border-start-0" type="password" placeholder="Enter password" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-person-plus me-2"></i>Create Student
+                        <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill">
+                            <!-- أزلت shadow-sm -->
+                            <i class="bi bi-person-plus-fill me-2"></i>Create Student
                         </button>
                     </div>
                 </form>
@@ -113,7 +157,6 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-
         document.addEventListener('DOMContentLoaded', function () {
             const dateInput = document.getElementById('DateOfBirth');
             const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD

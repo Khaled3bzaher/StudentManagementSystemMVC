@@ -2,18 +2,24 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using StudentManagementMVCProject.DTOs.Students;
 using StudentManagementMVCProject.Enums;
 using StudentManagementMVCProject.Models;
 using StudentManagementMVCProject.Persistence.UnitOfWork;
 using StudentManagementMVCProject.Repositories.Interfaces;
+using StudentManagementMVCProject.ViewModels.Shared;
 using StudentManagementMVCProject.ViewModels.Students;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace StudentManagementMVCProject.Controllers
 {
+    [Authorize]
     public class StudentsController : Controller
     {
         private readonly IStudentService _studentService;
@@ -22,8 +28,9 @@ namespace StudentManagementMVCProject.Controllers
         private readonly IDepartmentService _departmentService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISemesterService _semesterService;
+        private readonly IEmailSender _emailSender;
 
-        public StudentsController( IStudentService studentService,UserManager<User> userManager, IMapper mapper,IDepartmentService departmentService,IUnitOfWork unitOfWork, ISemesterService semesterService)
+        public StudentsController( IStudentService studentService,UserManager<User> userManager, IMapper mapper,IDepartmentService departmentService,IUnitOfWork unitOfWork, ISemesterService semesterService,IEmailSender emailSender)
         {
             _studentService = studentService;
             _userManager = userManager;
@@ -31,23 +38,55 @@ namespace StudentManagementMVCProject.Controllers
             _departmentService = departmentService;
             _unitOfWork = unitOfWork;
             _semesterService = semesterService;
+            _emailSender = emailSender;
         }
-        public async Task<IActionResult> Index()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 4)
         {
-            var students = await _studentService.GetStudentsListAsync();
+            var (students,totalCount) = await _studentService.GetStudentsListAsync(pageNumber,pageSize);
             var viewModel = new StudentSearchViewModel
             {
-                Students = students,
-                Filter= new StudentSearchFilterViewModel()
+                Students = new PagedResult<StudentListViewModel>
+                {
+                    Items = students,
+                    TotalCount = totalCount,
+                    PageNumber=pageNumber,
+                    PageSize=pageSize
+                },
+
+
+                Filter = new StudentSearchFilterViewModel()
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                }
             };
             return View(viewModel);
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SearchStudents(StudentSearchFilterViewModel searchModel)
         {
-            var searchedStudents = await _studentService.GetFilteredStudentsListAsync(searchModel);
+            searchModel.PageNumber = searchModel.PageNumber <= 0 ? 1 : searchModel.PageNumber;
+            searchModel.PageSize = searchModel.PageSize <= 0 ? 12 : searchModel.PageSize;
 
-            return PartialView("_StudentsCards", searchedStudents);
+            var (students, totalCount) = await _studentService.GetFilteredStudentsListAsync(searchModel);
+            var viewModel = new StudentSearchViewModel
+            {
+                Students = new PagedResult<StudentListViewModel>
+                {
+                    Items = students,
+                    TotalCount = totalCount,
+                    PageNumber = searchModel.PageNumber,
+                    PageSize = searchModel.PageSize
+                },
+                Filter = searchModel
+            };
+            ViewData["TotalCount"] = totalCount;
+            ViewData["PageNumber"] = searchModel.PageNumber;
+            ViewData["PageSize"] = searchModel.PageSize;
+            return PartialView("_StudentsCards", viewModel.Students.Items);
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             var Depts=await _departmentService.GetDepartmentsNamesCodesAsync();
@@ -73,14 +112,30 @@ namespace StudentManagementMVCProject.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(AddStudentDTO model)
         {
             var Depts = await _departmentService.GetDepartmentsNamesCodesAsync();
             if (ModelState.IsValid)
             {
+
                 var createdStudent = await _studentService.AddStudentUserAsync(model);
+
+
+
                 if (createdStudent != null)
                 {
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(createdStudent.User);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = createdStudent.UserId, code = code },
+                    protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(createdStudent.User.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
                     TempData["SweetAlertMessage"] = $"تم تسجيل الطالب <b>{createdStudent.User.FirstName} {createdStudent.User.LastName}</b> بنجاح";
                     TempData["SweetAlertType"] = "success";
                     TempData["SweetAlertButtonText"] = "متابعة";
@@ -131,9 +186,16 @@ namespace StudentManagementMVCProject.Controllers
                 "Text");
             return View(model);
         }
-
+        [Authorize(Roles = "Admin,Student")]
         public async Task<IActionResult> Details(int id)
         {
+            var currentUserId = _userManager.GetUserId(User);
+            var student = await _studentService.GetByIdAsync(id);
+            if (!User.IsInRole("Admin") && student?.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+
             var Student= await _studentService.GetStudentDetailsAsync(id);
             if (Student == null)
                 return NotFound();
@@ -141,8 +203,11 @@ namespace StudentManagementMVCProject.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> Delete(int id)
         {
+            
             var student = await _studentService.GetByIdAsync(id);
             if (student == null)
             {
@@ -182,6 +247,7 @@ namespace StudentManagementMVCProject.Controllers
                 }
             }
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var student = await _studentService.GetStudentForEditAsync(id);
@@ -206,6 +272,7 @@ namespace StudentManagementMVCProject.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(StudentEditViewModel model)
         {
             if (!ModelState.IsValid)
@@ -260,37 +327,43 @@ namespace StudentManagementMVCProject.Controllers
             
             return RedirectToAction(nameof(Details),new {id=model.Id});
         }
-
+        [Authorize(Roles = "Admin,Student")]
         public async Task<IActionResult> Courses(int id)
         {
-            var student = await _studentService.GetStudentDetailsAsync(id);
-            if (student == null)
+            var currentUserId = _userManager.GetUserId(User);
+            var student = await _studentService.GetByIdAsync(id);
+
+            if (!User.IsInRole("Admin") && student?.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+            var Student = await _studentService.GetStudentDetailsAsync(id);
+            if (Student == null)
                 return NotFound();
 
             ViewData["AcademicYears"] = new SelectList(
                 await _unitOfWork.Repository<AcademicYear>().GetAllAsync(),
                 "Id", "Name");
-            ViewData["StudentId"] = student.Id;
-            ViewData["StudentName"] = student.FullName;
+            ViewData["StudentId"] = Student.Id;
+            ViewData["StudentName"] = Student.FullName;
             ViewData["Enrollments"] = new List<StudentCourseEnrollment>();
 
             return View();
         }
 
 
-        public async Task<IActionResult> GetSemestersByAcademicYearId(int academicYearId)
-        {
-            if (!Request.Headers["X-Requested-With"].Equals("XMLHttpRequest"))
-            {
-                return NotFound();
-            }
-
-            var semesters = await _semesterService.GetSemestersByAcademicYearAsync(academicYearId);
-            return Json(semesters.Select(s => new { s.Id, s.Name }));
-        }
+        
         [HttpPost]
+        [Authorize(Roles = "Admin,Student")]
         public async Task<IActionResult> GetCourses(int studentId, int semesterId)
         {
+            var currentUserId = _userManager.GetUserId(User);
+            var student = await _studentService.GetStudentIdByUserIdAsync(currentUserId);
+
+            if (!User.IsInRole("Admin") && student?.UserId != currentUserId)
+            {
+                return Forbid();
+            }
             var studentCourses = await _studentService.GetStudentCoursesBySemesterIdAsync(studentId, semesterId);
             if (studentCourses == null)
                 return NotFound();
@@ -299,5 +372,6 @@ namespace StudentManagementMVCProject.Controllers
         }
 
         
+
     }
 }

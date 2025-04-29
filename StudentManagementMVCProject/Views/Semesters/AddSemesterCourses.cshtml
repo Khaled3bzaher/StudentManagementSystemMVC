@@ -19,7 +19,6 @@
                 <input type="hidden" name="SemesterId" value="@Model.Id" />
                 <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken()" />
 
-                <!-- عدادات -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm border-primary">
@@ -41,7 +40,6 @@
                     </div>
                 </div>
 
-                <!-- جدول المقررات -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-light">
                         <h5 class="mb-0">
@@ -139,7 +137,6 @@
                     </div>
                 </div>
 
-                <!-- الأزرار -->
                 <div class="row mt-4">
                     <div class="col-12 text-center">
                         <button type="button" id="addRowBtn" class="btn btn-outline-success me-2" disabled>
@@ -161,7 +158,6 @@
             let rowIndex = @(existingCourses?.Count ?? 1);
             const maxCourses = 10;
 
-            // تحديث العدادات
             function updateCounters() {
                 const courseCount = $('.course-select').filter(function () {
                     return $(this).val() && $(this).val() !== '';
@@ -181,7 +177,6 @@
                 $('#teachersCount').text(teacherCount);
             }
 
-            // التحقق من اكتمال جميع الصفوف
             function validateAllRows() {
                 let allComplete = true;
                 $('.course-row').each(function () {
@@ -200,7 +195,6 @@
                 return allComplete;
             }
 
-            // تحديث خيارات المقررات (منع التكرار)
             function updateCourseOptions() {
                 $('.course-select option').prop('disabled', false);
 
@@ -223,7 +217,6 @@
                 });
             }
 
-            // إضافة صف جديد
             function addRow() {
                 if ($('#addRowBtn').is(':disabled') || !validateAllRows()) {
                     return;
@@ -232,27 +225,22 @@
                 const newRow = $('.course-row:first').clone(true, true);
                 const newIndex = rowIndex++;
 
-                // تحديث أسماء الحقول
                 newRow.find('input, select').each(function () {
                     const name = $(this).attr('name')?.replace(/\[\d+\]/, `[${newIndex}]`) || '';
                     $(this).attr('name', name).val('');
                 });
 
-                // إعادة تعيين الحقول وإزالة التحقق من الصحة
                 newRow.find('.form-select').removeClass('is-valid is-invalid');
                 newRow.find('.invalid-feedback').hide();
                 newRow.find('.remove-row').removeClass('d-none');
 
-                // إضافة الصف إلى الجدول
                 $('#coursesTable').append(newRow);
 
-                // تحديث الخيارات والتحقق
                 updateCourseOptions();
                 validateAllRows();
                 updateCounters();
             }
 
-            // حذف صف
             function removeRow(button) {
                 if ($('.course-row').length <= 1) {
                     alert('يجب أن يكون هناك مقرر واحد على الأقل');
@@ -262,7 +250,6 @@
                 const row = $(button).closest('.course-row');
                 row.remove();
 
-                // إعادة ترقيم الصفوف
                 $('.course-row').each(function (index) {
                     $(this).find('input, select').each(function () {
                         const name = $(this).attr('name')?.replace(/\[\d+\]/, `[${index}]`) || '';
@@ -272,7 +259,6 @@
 
                 rowIndex = $('.course-row').length;
 
-                // إخفاء زر الحذف إذا بقي صف واحد
                 if ($('.course-row').length === 1) {
                     $('.remove-row').addClass('d-none');
                 }
@@ -282,13 +268,11 @@
                 updateCourseOptions();
             }
 
-            // التعامل مع التغييرات في القوائم المنسدلة
             $(document).on('change', '.course-select, .teacher-select', function () {
                 const row = $(this).closest('.course-row');
                 const courseSelect = row.find('.course-select');
                 const teacherSelect = row.find('.teacher-select');
 
-                // تحديث حالة التحقق
                 if (courseSelect.val()) {
                     courseSelect.removeClass('is-invalid').addClass('is-valid');
                 } else {
@@ -306,15 +290,12 @@
                 updateCounters();
             });
 
-            // إضافة صف جديد عند النقر
             $('#addRowBtn').on('click', addRow);
 
-            // حذف صف عند النقر
             $(document).on('click', '.remove-row', function () {
                 removeRow(this);
             });
 
-            // التحقق من صحة النموذج عند الإرسال
             $('form.needs-validation').on('submit', function (e) {
                 const form = this;
                 if (!form.checkValidity()) {
@@ -329,7 +310,6 @@
                 $(form).addClass('was-validated');
             });
 
-            // التهيئة الأولية
             updateCounters();
             validateAllRows();
             updateCourseOptions();

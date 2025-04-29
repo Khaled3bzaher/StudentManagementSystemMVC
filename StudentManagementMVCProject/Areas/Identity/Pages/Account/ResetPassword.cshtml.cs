@@ -76,7 +76,8 @@ namespace StudentManagementMVCProject.Areas.Identity.Pages.Account
         {
             if (code == null)
             {
-                return BadRequest("A code must be supplied for password reset.");
+                return NotFound();
+                //return BadRequest("A code must be supplied for password reset.");
             }
             else
             {

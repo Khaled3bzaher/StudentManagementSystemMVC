@@ -16,6 +16,8 @@ namespace StudentManagementMVCProject.Persistence.GenericRepository
         Task DeleteAsync(T entity);
         IQueryable<T> GetAsQueryAble();
 
+        Task<int> GetCountAsync();
+
         Task<bool> isExistById(int id);
 
         Task<bool> isExistByNameAsync(string name);

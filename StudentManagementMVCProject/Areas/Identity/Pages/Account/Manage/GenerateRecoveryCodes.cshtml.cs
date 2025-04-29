@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,6 +14,8 @@ using StudentManagementMVCProject.Models;
 
 namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize(Roles = "Admin")]
+
     public class GenerateRecoveryCodesModel : PageModel
     {
         private readonly UserManager<User> _userManager;

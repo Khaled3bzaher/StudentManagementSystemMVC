@@ -1,17 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace StudentManagementMVCProject.ViewModels.Departments
 {
     public class EditDepartmentViewModel
     {
         public int Id { get; set; }
-        [Required(ErrorMessage = "Enter Department Code Please .!")]
-        [MaxLength(10, ErrorMessage = "Max Length For Department Code is 10 Letters")]
+        [Remote(action: "VerifyDepartmentCode", controller: "Validations",AdditionalFields =nameof(Id))]
         [Display(Name = "Department Code")]
         public string Code { get; set; }
 
         [Required(ErrorMessage = "Enter Department Name Please .!")]
-        [MaxLength(50, ErrorMessage = "Max Length For Department Name is 50 Letters")]
+        [Remote(action: "VerifyName", controller: "Validations")]
         [Display(Name = "Department Name")]
         public string Name { get; set; }
 

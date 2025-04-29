@@ -1,52 +1,78 @@
 ﻿@model StudentManagementMVCProject.ViewModels.Departments.EditDepartmentViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Department";
 }
 
-<h1>Edit</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Department: @Model.Name</h4>
+                </div>
+                <div class="card-body">
+                    
 
-<h4>Department</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Code" class="control-label"></label>
-                <input asp-for="Code" class="form-control" />
-                <span asp-validation-for="Code" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="HeadTeacherID" class="control-label"></label>
-                <select asp-for="HeadTeacherID" class="form-control" asp-items="ViewBag.HeadTeacherID">
-                    <option value="">-- اختر رئيس قسم --</option>
+                    <form asp-action="Edit" >
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Id" />
 
-                </select>
-                <span asp-validation-for="HeadTeacherID" class="text-danger"></span>
+                        <!-- Code -->
+                        <div class="mb-3">
+                            <label asp-for="Code" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-code"></i></span>
+                                <input asp-for="Code" class="form-control" placeholder="Department code" />
+                            </div>
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="Department name" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Head Teacher -->
+                        <div class="mb-3">
+                            <label asp-for="HeadTeacherID" class="form-label fw-bold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                <select asp-for="HeadTeacherID" class="form-select" asp-items="ViewBag.HeadTeacherID">
+                                    <option value="">-- Select Head of Department --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="HeadTeacherID" class="text-danger"></span>
+                        </div>
+
+                        <!-- Is Active -->
+                        <div class="mb-4 form-check form-switch">
+                            <input asp-for="isActive" class="form-check-input" type="checkbox" id="isActiveSwitch" />
+                            <label class="form-check-label" for="isActiveSwitch">@Html.DisplayNameFor(model => model.isActive)</label>
+                        </div>
+
+                        <!-- Submit and Cancel Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-warning text-white">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="isActive" /> @Html.DisplayNameFor(model => model.isActive)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
+   
 }

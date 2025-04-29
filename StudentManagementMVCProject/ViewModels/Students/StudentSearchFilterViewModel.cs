@@ -11,6 +11,7 @@ namespace StudentManagementMVCProject.ViewModels.Students
         public string? Department { get; set; }
         public AcademicLevel? AcademicLevel { get; set; }
         public StudentStatus? StudentStatus { get; set; }
-
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 4;
     }
 }

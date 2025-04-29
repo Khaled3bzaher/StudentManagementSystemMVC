@@ -68,7 +68,8 @@
         </form>
     </div>
 </div>
-
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
 <script>
     function previewImage(event) {
         var reader = new FileReader();
@@ -79,3 +80,4 @@
         reader.readAsDataURL(event.target.files[0]);
     }
 </script>
+}

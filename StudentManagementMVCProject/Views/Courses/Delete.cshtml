@@ -1,69 +1,102 @@
 ﻿@model CourseViewModel
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Course";
 }
 
-<h1>Delete</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-octagon me-2"></i>Delete Course</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>Are you sure you want to delete this course?</h5>
+                        <p class="mb-0">This action cannot be undone. All related data will be permanently removed.</p>
+                    </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Course</h4>
-    <hr />
+                    <h5 class="mb-4"><i class="bi bi-info-circle me-2"></i>Course Information</h5>
 
-    <partial name="_StatusMessage" model="@(TempData["StatusMessage"] as string)" />
+                    @if (Model == null)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>No course found.
+                        </div>
+                    }
+                    else
+                    {
+                        <dl class="row mb-0">
+                            <!-- Code -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-code me-2"></i>@Html.DisplayNameFor(model => model.Code)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.Code)</dd>
 
+                            <!-- Name -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-bookmark me-2"></i>@Html.DisplayNameFor(model => model.Name)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
 
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Code)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Code)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreditHour)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreditHour)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Department)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Department)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.isCommon)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.isCommon)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.isActive)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.isActive)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PrerequisiteCourse)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PrerequisiteCourse)
-        </dd>
-    </dl>
+                            <!-- Credit Hour -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-clock me-2"></i>@Html.DisplayNameFor(model => model.CreditHour)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.CreditHour)</dd>
 
+                            <!-- Department -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-building me-2"></i>@Html.DisplayNameFor(model => model.Department)
+                            </dt>
+                            <dd class="col-sm-9">@Html.DisplayFor(model => model.Department)</dd>
 
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                            <!-- Is Common -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-toggle-on me-2"></i>@Html.DisplayNameFor(model => model.isCommon)
+                            </dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-@(Model.isCommon ? "success" : "danger")">
+                                    @(Model.isCommon ? "Yes" : "No")
+                                </span>
+                            </dd>
+
+                            <!-- Is Active -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-toggle-on me-2"></i>@Html.DisplayNameFor(model => model.isActive)
+                            </dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-@(Model.isActive ? "success" : "danger")">
+                                    @(Model.isActive ? "Active" : "Inactive")
+                                </span>
+                            </dd>
+
+                            <!-- Prerequisite Course -->
+                            <dt class="col-sm-3 fw-bold">
+                                <i class="bi bi-link-45deg me-2"></i>@Html.DisplayNameFor(model => model.PrerequisiteCourse)
+                            </dt>
+                            <dd class="col-sm-9">
+                                @(Model.PrerequisiteCourse ?? "None")
+                            </dd>
+                        </dl>
+                    }
+                </div>
+                @if (Model != null)
+                {
+                    <div class="card-footer bg-light">
+                        <form asp-action="Delete" class="d-flex justify-content-between">
+                            <input type="hidden" asp-for="Id" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash3-fill me-2"></i>Confirm Delete
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                            </a>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,0 +1,48 @@
+﻿@model List<StudentManagementMVCProject.ViewModels.Teachers.TeacherCourseEnrollmentsViewModel>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th><i class="bi bi-hash"></i> كود المقرر</th>
+                    <th><i class="bi bi-book"></i> اسم المقرر</th>
+                    <th><i class="bi bi-clock"></i> الساعات</th>
+                    <th><i class="bi bi-building"></i> القسم</th>
+                    <th><i class="bi bi-gear"></i> الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in Model)
+                {
+                    <tr>
+                        <td>@course.CourseCode</td>
+                        <td>@course.CourseName</td>
+                        <td>@course.CreditHour</td>
+                        <td>@course.Department</td>
+                        <td>
+                            <div class="d-flex">
+                                <a asp-action="CourseStudents" asp-controller="Teachers"
+                                   asp-route-courseId="@course.CourseId"
+                                   asp-route-semesterId="@ViewBag.SemesterId"
+                                   class="btn btn-sm btn-warning me-2">
+                                    <i class="bi bi-pencil"></i> عرض الطلاب
+                                </a>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="no-courses">
+        <i class="bi bi-journal-x"></i>
+        <h4>لا توجد مقررات مسندة</h4>
+        <p>لا توجد مقررات مسندة لهذا الفصل الدراسي.</p>
+    </div>
+}

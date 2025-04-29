@@ -1,61 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using StudentManagementMVCProject.Data;
+using Microsoft.AspNetCore.WebUtilities;
 using StudentManagementMVCProject.DTOs.Teachers;
 using StudentManagementMVCProject.Models;
 using StudentManagementMVCProject.Persistence.UnitOfWork;
-using StudentManagementMVCProject.Repositories.Implementations;
 using StudentManagementMVCProject.Repositories.Interfaces;
+using StudentManagementMVCProject.ViewModels.Courses;
 using StudentManagementMVCProject.ViewModels.Teachers;
+using System.Text.Encodings.Web;
+using System.Text;
 
 namespace StudentManagementMVCProject.Controllers
 {
+    [Authorize]
     public class TeachersController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ITeacherService _teacherService;
+        private readonly ICourseService _courseService;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDepartmentService _departmentService;
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
+        private readonly IEmailSender _emailSender;
 
-        public TeachersController(IUnitOfWork unitOfWork, ITeacherService teacherService, UserManager<User> userManager, IMapper mapper)
+        public TeachersController( ITeacherService teacherService,ICourseService courseService,IUnitOfWork unitOfWork, IDepartmentService departmentService,UserManager<User> userManager,IEmailSender emailSender)
         {
-            _unitOfWork = unitOfWork;
+            
             _teacherService = teacherService;
+            _courseService = courseService;
+            _unitOfWork = unitOfWork;
+            _departmentService = departmentService;
             _userManager = userManager;
-            _mapper = mapper;
+            _emailSender = emailSender;
         }
 
         // GET: Teachers
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            var teachers = await _unitOfWork.Repository<Teacher>().GetAsQueryAble()
-                .Include(s => s.User).Include(s => s.Department)
-                .ProjectTo<TeacherListViewModel>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+            var teachers = await _teacherService.GetTeachersToListAsync();
             return View(teachers);
         }
 
         // GET: Teachers/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetByIdAsync(id);
+            if (!User.IsInRole("Admin") && teacherUser?.UserId != currentUserId)
             {
-                return NotFound();
+                return Forbid();
             }
 
-            var teacher = await _context.Teachers
-                .Include(t => t.Department)
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var teacher = await _teacherService.GetTeacherDetailsByIdAsync(id);
             if (teacher == null)
             {
                 return NotFound();
@@ -65,19 +65,18 @@ namespace StudentManagementMVCProject.Controllers
         }
 
         // GET: Teachers/Create
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
-            var Depts = await _unitOfWork.Repository<Department>().GetAllAsync();
+            ViewData["DepartmentId"] = new SelectList(await _departmentService.GetDepartmentsNamesCodesAsync(), "Id", "Code");
 
-            ViewData["DepartmentId"] = new SelectList(Depts, "Id", "Name");
             return View();
         }
 
-        // POST: Teachers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(AddTeacherDTO model)
         {
             if (ModelState.IsValid)
@@ -85,20 +84,29 @@ namespace StudentManagementMVCProject.Controllers
                 var createdTeacher = await _teacherService.AddTeacherUserAsync(model);
                 if (createdTeacher != null)
                 {
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(createdTeacher.User);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = createdTeacher.UserId, code = code },
+                    protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(createdTeacher.User.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    TempData["SweetAlertMessage"] = $"تم تسجيل المعلم <b>{createdTeacher.User.FirstName} {createdTeacher.User.LastName}</b> بنجاح";
+                    TempData["SweetAlertType"] = "success";
+                    TempData["SweetAlertButtonText"] = "متابعة";
                     return RedirectToAction(nameof(Index));
                 }
 
-                var isExistBefore = await _userManager.FindByEmailAsync(model.Email);
-                var Depts = await _unitOfWork.Repository<Department>().GetAllAsync();
-                ViewData["DepartmentId"] = new SelectList(Depts, "Id", "Name", model.DepartmentId);
-                if (isExistBefore != null)
-                {
-                    ModelState.AddModelError("Email", "Email is Used Before..!");
-                    return View(model);
-                }
+                ViewData["DepartmentId"] = new SelectList(await _departmentService.GetDepartmentsNamesCodesAsync(), "Id", "Code", model.DepartmentId);
+
+
                 if (!ModelState.ContainsKey("Email"))
                 {
-                    ModelState.AddModelError(string.Empty, "Failure in Creating Student");
+                    ModelState.AddModelError(string.Empty, "Failure in Creating Teacher");
                     return View(model);
 
                 }
@@ -108,100 +116,202 @@ namespace StudentManagementMVCProject.Controllers
         }
 
         // GET: Teachers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var teacher = await _context.Teachers.FindAsync(id);
+            var teacher = await _teacherService.GetTeacherForEditByIdAsync(id);
             if (teacher == null)
             {
                 return NotFound();
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Code", teacher.DepartmentId);
-            ViewData["UserId"] = new SelectList(_context.Set<User>(), "Id", "Id", teacher.UserId);
+            ViewData["Departments"] = new SelectList(await _departmentService.GetDepartmentsNamesCodesAsync(), "Id", "Code", teacher.DepartmentId);
             return View(teacher);
         }
 
-        // POST: Teachers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,DepartmentId,Qualification,HireDate")] Teacher teacher)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit( TeacherEditViewModel teacher)
         {
-            if (id != teacher.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                var (success, errorMessage) = await _teacherService.UpdateTeacherAsync(teacher);
+                if (!success)
                 {
-                    _context.Update(teacher);
-                    await _context.SaveChangesAsync();
+
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                    
+                    TempData["SweetAlertMessage"] = errorMessage;
+                    TempData["SweetAlertType"] = "error";
+                    TempData["SweetAlertButtonText"] = "متابعة";
+                    ViewData["Departments"] = new SelectList(await _departmentService.GetDepartmentsNamesCodesAsync(), "Id", "Code", teacher.DepartmentId);
+
+                    return View(teacher);
+
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TeacherExists(teacher.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                TempData["SweetAlertMessage"] = $"Teacher {teacher.FirstName} {teacher.LastName} updated successfully.";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
+
+
+                return RedirectToAction(nameof(Details), new { id = teacher.Id });
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Code", teacher.DepartmentId);
-            ViewData["UserId"] = new SelectList(_context.Set<User>(), "Id", "Id", teacher.UserId);
+            ViewData["Departments"] = new SelectList(await _departmentService.GetDepartmentsNamesCodesAsync(), "Id", "Code", teacher.DepartmentId);
             return View(teacher);
         }
 
         // GET: Teachers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var teacher = await _unitOfWork.Repository<Teacher>().GetAsQueryAble()
-                .Include(t => t.Department)
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var (success, errorMessage) = await _teacherService.DeleteTeacherAsync(id);
+            if (!success)
+            {
+                return Json(new { success = false, error = errorMessage });
+            }
+            return Json(new { success = true, error = errorMessage });
+
+
+        }
+
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> Courses(int id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetByIdAsync(id);
+            if (!User.IsInRole("Admin") && teacherUser?.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+            var teacher = await _teacherService.GetTeacherDetailsByIdAsync(id);
             if (teacher == null)
+                return NotFound();
+            ViewData["AcademicYears"] = new SelectList(
+                             await _unitOfWork.Repository<AcademicYear>().GetAllAsync(),
+                             "Id", "Name");
+
+
+            return View(new TeacherCoursesViewModel
+            {
+                TeacherId = teacher.Id,
+                TeacherName = teacher.FullName,
+                TeacherCourseEnrollments = new List<TeacherCourseEnrollmentsViewModel>()
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> GetTeacherCoursesPartial(int semesterId, int teacherId)
+        {
+            if (!Request.Headers["X-Requested-With"].Equals("XMLHttpRequest"))
             {
                 return NotFound();
             }
-
-            return View(teacher);
-        }
-
-        // POST: Teachers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var teacher = await _unitOfWork.Repository<Teacher>().GetByIdAsync(id);
-            if (teacher != null)
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetByIdAsync(teacherId);
+            if (!User.IsInRole("Admin") && teacherUser?.UserId != currentUserId)
             {
-                var teacherUser = await _userManager.FindByIdAsync(teacher.UserId);
-                await _unitOfWork.Repository<Teacher>().DeleteAsync(teacher);
-                var result = await _userManager.DeleteAsync(teacherUser);
-
-                return RedirectToAction(nameof(Index));
+                return Forbid();
             }
-            return View();
+            var courses = await _teacherService.GetTeacherCoursesBySemesterIdAsync(teacherId, semesterId);
+
+            ViewBag.SemesterId = semesterId;
+            return PartialView("_TeacherCoursesPartial", courses);
+        }
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> CourseStudents(int courseId,int semesterId)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetTeacherIdByUserIdAsync(currentUserId);
+            var teacherCourseId = await _courseService.GetCourseTeacherIdBySmesterId(semesterId,courseId);
+            if (!User.IsInRole("Admin") && (teacherUser?.UserId != currentUserId || teacherCourseId != teacherUser?.Id))
+            {
+                return Forbid();
+            }
+            //IMPLEMENT TEACHER ID TO PERVENT TO SHOW ANOTHER COURSES
+            if (courseId == null || semesterId == null)
+                return NotFound();
+            var courseStudents = await _courseService.GetCourseStudentsListAsync(courseId, semesterId);
+            ViewData["CourseName"] = _courseService.GetByIdAsync(courseId).Result.Name;
+            ViewData["CourseId"] = courseId;
+            ViewData["SemesterId"] = semesterId;
+            ViewData["TeacherId"] = teacherCourseId;
+            return View(courseStudents);
+        }
+        [HttpGet]
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> GetStudentGrades(int studentId, int courseId, int semesterId)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetTeacherIdByUserIdAsync(currentUserId);
+            var teacherCourseId = await _courseService.GetCourseTeacherIdBySmesterId(semesterId, courseId);
+            if (!User.IsInRole("Admin") && (teacherUser?.UserId != currentUserId || teacherCourseId != teacherUser?.Id))
+            {
+                return Forbid();
+            }
+            var grades = await _courseService.GetStudentGradesAsync(studentId, courseId, semesterId);
+            ViewData["SemesterId"] = semesterId;
+
+            return Json(grades);
+        }
+        [HttpGet]
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> GetEditGradesPartial(int studentId, int courseId, int semesterId)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetTeacherIdByUserIdAsync(currentUserId);
+            var teacherCourseId = await _courseService.GetCourseTeacherIdBySmesterId(semesterId, courseId);
+            if (!User.IsInRole("Admin") && (teacherUser?.UserId != currentUserId || teacherCourseId != teacherUser?.Id))
+            {
+                return Forbid();
+            }
+            var grades = await _courseService.GetStudentGradesAsync(studentId, courseId, semesterId);
+            if (grades == null)
+            {
+                return NotFound();
+            }
+            return PartialView("_EditStudentGradesPartial", grades);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> EditStudentGrades(EditStudentGradesViewModel model)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var teacherUser = await _teacherService.GetTeacherIdByUserIdAsync(currentUserId);
+            var teacherCourseId = await _courseService.GetCourseTeacherIdBySmesterId(model.SemesterId, model.CourseId);
+            if (!User.IsInRole("Admin") && (teacherUser?.UserId != currentUserId || teacherCourseId != teacherUser?.Id))
+            {
+                return Forbid();
+            }
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            }
+
+            var result = await _courseService.UpdateStudentGradesAsync(model);
+
+            if (result.success)
+            {
+                return Json(new { success = true, message = result.errorMessage });
+            }
+
+            return Json(new { success = false, error = result.errorMessage });
         }
 
-        private bool TeacherExists(int id)
-        {
-            return _context.Teachers.Any(e => e.Id == id);
-        }
     }
 }

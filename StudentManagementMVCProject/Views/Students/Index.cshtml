@@ -1,89 +1,568 @@
 ﻿@model StudentSearchViewModel
 @{
-    ViewData["Title"] = "Students";
+    ViewData["Title"] = "إدارة الطلاب";
 }
 
-<div class="container py-4">
-    <h3 class="mb-4 text-primary fw-bold">قائمة الطلاب</h3>
-    <a asp-action="Create" class="btn btn-primary mb-4">
-        <i class="bi bi-plus-circle me-2"></i>إضافة طالب جديد
-    </a>
-    @Html.AntiForgeryToken()
+<div class="students-dashboard" dir="rtl">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-people-fill"></i> إدارة الطلاب
+            </h1>
+            <div class="header-actions">
+                <a asp-action="Create" class="btn btn-primary btn-add">
+                    <i class="bi bi-plus-lg"></i> إضافة طالب جديد
+                </a>
+            </div>
+        </div>
+        <div class="header-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="currentColor"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="currentColor"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="currentColor"></path>
+            </svg>
+        </div>
+    </div>
 
-    <!-- Search Filters -->
-    <div class="card mb-4">
-        <div class="card-body p-4">
-            <div class="row g-3">
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-hash"></i></span>
-                        <input type="text" class="form-control search-input" data-column="StudentNumber" placeholder="رقم الطالب" />
+    <!-- Search Panel -->
+    <div class="search-panel">
+        <div class="search-header">
+            <h3><i class="bi bi-search"></i> بحث متقدم</h3>
+            <button class="btn btn-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+
+        <div class="collapse show" id="searchCollapse">
+            <div class="search-body">
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-hash"></i> رقم الطالب</label>
+                            <input type="text" class="form-control search-input" data-column="StudentNumber" placeholder="ابحث برقم الطالب" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control search-input" data-column="FullName" placeholder="الاسم الكامل" />
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-person"></i> الاسم الكامل</label>
+                            <input type="text" class="form-control search-input" data-column="FullName" placeholder="ابحث بالاسم" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-                        <input type="text" class="form-control search-input" data-column="NationalId" placeholder="الرقم القومي" />
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-card-text"></i> الرقم القومي</label>
+                            <input type="text" class="form-control search-input" data-column="NationalId" placeholder="ابحث بالرقم القومي" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="text" class="form-control search-input" data-column="Email" placeholder="البريد الإلكتروني" />
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-envelope"></i> البريد الإلكتروني</label>
+                            <input type="text" class="form-control search-input" data-column="Email" placeholder="ابحث بالإيميل" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-building"></i></span>
-                        <input type="text" class="form-control search-input" data-column="Department" placeholder="القسم" />
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-building"></i> القسم</label>
+                            <input type="text" class="form-control search-input" data-column="Department" placeholder="ابحث بالقسم" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-book"></i></span>
-                        <select class="form-select search-input" data-column="AcademicLevel">
-                            <option value="">جميع المستويات</option>
-                            @foreach (var level in Enum.GetValues(typeof(AcademicLevel)))
-                            {
-                                <option value="@level">@level</option>
-                            }
-                        </select>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-book"></i> المستوى</label>
+                            <select class="form-select search-input" data-column="AcademicLevel">
+                                <option value="">جميع المستويات</option>
+                                @foreach (var level in Enum.GetValues(typeof(AcademicLevel)))
+                                {
+                                    <option value="@level">@level</option>
+                                }
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-check-circle"></i></span>
-                        <select class="form-select search-input" data-column="StudentStatus">
-                            <option value="">جميع الحالات</option>
-                            @foreach (var status in Enum.GetValues(typeof(StudentStatus)))
-                            {
-                                <option value="@status">@status</option>
-                            }
-                        </select>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-group">
+                            <label><i class="bi bi-check-circle"></i> الحالة</label>
+                            <select class="form-select search-input" data-column="StudentStatus">
+                                <option value="">جميع الحالات</option>
+                                @foreach (var status in Enum.GetValues(typeof(StudentStatus)))
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="search-actions">
+                            <button type="button" class="btn btn-primary search-btn">
+                                <i class="bi bi-search"></i> بحث
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary reset-btn">
+                                <i class="bi bi-arrow-counterclockwise"></i> إعادة تعيين
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Student Cards Container -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="studentCards">
-        @await Html.PartialAsync("_StudentsCards", Model.Students)
+    <!-- Results Section -->
+    <div class="results-section">
+        <div class="results-header">
+            <h4><i class="bi bi-list-check"></i> نتائج البحث</h4>
+            <div class="results-count">
+                <span class="badge bg-primary rounded-pill" id="totalCount">@Model.Students.TotalCount</span>
+                <span>طالب</span>
+            </div>
+        </div>
+
+        <!-- Student Cards Container -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="studentCards">
+            @await Html.PartialAsync("_StudentsCards", Model.Students.Items)
+        </div>
     </div>
 
-    
+    <!-- Paging Section -->
+    <div class="paging-section mt-4"></div>
+
 </div>
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+    .paging-section .pagination {
+        margin: 0;
+    }
+
+    .paging-section .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        color: var(--primary-color);
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .paging-section .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .paging-section .page-item.disabled .page-link {
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+
+    .paging-section .page-link:hover {
+        background-color: rgba(67, 97, 238, 0.1);
+        border-color: var(--primary-color);
+    }
+
+        .students-dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem;
+        }
+
+        .dashboard-header {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+        }
+
+        .page-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+            .page-title i {
+                margin-left: 0.75rem;
+                color: var(--primary-color);
+            }
+
+        .btn-add {
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+            .btn-add i {
+                margin-left: 0.5rem;
+            }
+
+        .header-wave {
+            color: rgba(67, 97, 238, 0.1);
+        }
+
+            .header-wave svg {
+                display: block;
+                width: 100%;
+                height: 5rem;
+            }
+
+        .search-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .search-header {
+            background: var(--light-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .search-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--dark-color);
+                display: flex;
+                align-items: center;
+            }
+
+            .search-header i {
+                margin-left: 0.5rem;
+            }
+
+        .btn-toggle {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            padding: 0;
+        }
+
+        .search-body {
+            padding: 1.5rem;
+        }
+
+        .search-group {
+            margin-bottom: 1rem;
+        }
+
+            .search-group label {
+                display: block;
+                font-size: 0.9rem;
+                font-weight: 500;
+                margin-bottom: 0.5rem;
+                color: var(--dark-color);
+                display: flex;
+                align-items: center;
+            }
+
+                .search-group label i {
+                    margin-left: 0.5rem;
+                }
+
+        .search-input {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+            .search-input:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+            }
+
+        .search-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.7rem;
+        }
+
+        .search-btn, .reset-btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .search-btn i, .reset-btn i {
+                margin-left: 0.5rem;
+            }
+
+        .results-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+
+            .results-header h4 {
+                margin: 0;
+                font-weight: 600;
+                color: var(--dark-color);
+                display: flex;
+                align-items: center;
+            }
+
+            .results-header i {
+                margin-left: 0.5rem;
+            }
+
+        .results-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Student Card Styles */
+    .student-card {
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+            .student-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: none;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-left: 0.75rem;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .detail-icon {
+            margin-left: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1rem;
+            margin-top: 0.2rem;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .card-footer {
+            background: transparent;
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 60px;
+    }
+
+        .action-btn i {
+            font-size: 0.9rem;
+            margin-left: 0.2rem;
+        }
+
+        /* Status Colors */
+    .status-active {
+        background-color: #28a745;
+    }
+    .status-graduated {
+        background-color: #17a2b8;
+    }
+    .status-suspended {
+        background-color: #ffc107;
+    }
+    .status-expelled {
+        background-color: #dc3545;
+    }
+    .status-withdrawn {
+        background-color: #6c757d;
+    }
+    .status-default {
+        background-color: #007bff;
+    }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: none;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary-color);
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+            .no-results i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                color: #adb5bd;
+            }
+
+        /* Responsive Styles */
+        @@media (max-width: 1200px) {
+            .students-dashboard {
+                padding: 0 1rem 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .search-body .row > div {
+                margin-bottom: 1rem;
+            }
+
+            .search-actions {
+                margin-top: 0;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+
+            .action-btn {
+                min-width: calc(50% - 0.25rem);
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .search-btn, .reset-btn {
+                width: 100%;
+            }
+
+            .action-btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Debounce function
+            // Debounce function for better performance
             function debounce(func, wait, immediate) {
                 var timeout;
                 return function() {
@@ -100,7 +579,7 @@
             }
 
             // Search function
-            function performSearch() {
+            function performSearch(pageNumber = 1) {
                 var filter = {
                     StudentNumber: $('[data-column="StudentNumber"]').val(),
                     FullName: $('[data-column="FullName"]').val(),
@@ -108,104 +587,191 @@
                     Email: $('[data-column="Email"]').val(),
                     Department: $('[data-column="Department"]').val(),
                     AcademicLevel: $('[data-column="AcademicLevel"]').val() || null,
-                    StudentStatus: $('[data-column="StudentStatus"]').val() || null
+                    StudentStatus: $('[data-column="StudentStatus"]').val() || null,
+                    PageNumber: pageNumber,
+                    PageSize: 4
                 };
+
+                $('#studentCards').html(`
+                    <div class="col-12 loading-spinner" style="display: flex;">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">جاري التحميل...</span>
+                        </div>
+                    </div>
+                `);
 
                 $.ajax({
                     url: '@Url.Action("SearchStudents", "Students")',
                     type: 'GET',
                     data: filter,
-                    beforeSend: function() {
-                        $('#studentCards').html('<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">جاري التحميل...</span></div></div>');
-                    },
                     success: function (result) {
                         $('#studentCards').html(result);
+                        var totalCount = $('#paging-data').data('total-count');
+                        var pageNumber = $('#paging-data').data('page-number');
+                        var pageSize = $('#paging-data').data('page-size');
+
+                        $('#totalCount').text(totalCount); 
+                        updatePaging(totalCount, pageNumber, pageSize); 
                     },
                     error: function (xhr, status, error) {
                         console.error(error);
-                        $('#studentCards').html('<div class="col-12"><div class="alert alert-danger text-center">حدث خطأ أثناء جلب البيانات</div></div>');
+                        $('#studentCards').html(`
+                            <div class="col-12">
+                                <div class="alert alert-danger text-center">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    حدث خطأ أثناء جلب البيانات
+                                </div>
+                            </div>
+                        `);
                     }
                 });
             }
 
-            // Bind search events
-            $('.search-input').on('input change', debounce(performSearch, 300));
+            // Update paging buttons dynamically
+            function updatePaging(totalCount, pageNumber, pageSize) {
+                var totalPages = Math.ceil(totalCount / pageSize);
+                var startPage = Math.max(1, pageNumber - 2);
+                var endPage = Math.min(totalPages, startPage + 4);
 
-                    // Delete button click handler with event delegation
-        $(document).on('click', '.delete-btn', function() {
-            var studentId = $(this).data('id');
-            var studentName = $(this).data('name');
-            var token = $('input[name="__RequestVerificationToken"]').val();
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
 
-            // Validate studentId
-            var parsedId = parseInt(studentId);
-            if (!Number.isInteger(parsedId)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'خطأ',
-                    text: 'معرف الطالب غير صالح',
-                    confirmButtonText: 'حسناً'
-                });
-                return;
+                var pagingHtml = `
+                    <nav aria-label="Student pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item ${pageNumber == 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="#" data-page="1">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item ${pageNumber == 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="#" data-page="${pageNumber - 1}">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>`;
+
+                for (var i = startPage; i <= endPage; i++) {
+                    pagingHtml += `
+                        <li class="page-item ${i == pageNumber ? 'active' : ''}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>`;
+                }
+
+                pagingHtml += `
+                            <li class="page-item ${pageNumber == totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="#" data-page="${pageNumber + 1}">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item ${pageNumber == totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="#" data-page="${totalPages}">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>`;
+
+                $('.paging-section').html(pagingHtml);
             }
 
-            // Show SweetAlert confirmation
-            Swal.fire({
-                title: 'تأكيد الحذف',
-                html: `<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>هل أنت متأكد أنك تريد حذف الطالب
-                        <br>
-                        <strong>${studentName}</strong> ?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'نعم، احذفه!',
-                cancelButtonText: 'إلغاء',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return $.ajax({
-                        url: '@Url.Action("Delete", "Students")',
-                        type: 'POST',
-                        data: {
-                            id: parsedId,
-                            __RequestVerificationToken: token
-                        }
-                    }).then(function(response) {
-                        if (!response.success) {
-                            throw new Error(response.error || 'حدث خطأ أثناء الحذف');
-                        }
-                        return response;
-                    }).catch(function(error) {
-                        Swal.showValidationMessage(
-                            `Request failed: ${error.statusText || error.message}`
-                        );
-                    });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (result.value.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'تم الحذف!',
-                            text: 'تم حذف الطالب بنجاح',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            performSearch(); // Refresh the data
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ',
-                            text: result.value.error || 'حدث خطأ أثناء الحذف',
-                            confirmButtonText: 'حسناً'
-                        });
-                    }
+            // Manual search button
+            $('.search-btn').on('click', function() { performSearch(1); });
+
+            // Reset search form
+            $('.reset-btn').on('click', function() {
+                $('.search-input').val('');
+                $('.search-input[data-column="AcademicLevel"], .search-input[data-column="StudentStatus"]').val('');
+                performSearch(1);
+            });
+
+            // Automatic search on input change with debounce
+            $('.search-input').on('input change', debounce(function() { performSearch(1); }, 500));
+
+            // Paging button click handler
+            $(document).on('click', '.page-link', function(e) {
+                e.preventDefault();
+                var page = $(this).data('page');
+                if (page && !$(this).parent().hasClass('disabled')) {
+                    performSearch(page);
                 }
             });
-        });
-        //END OF SEARCH
+
+            // Delete button click handler
+            $(document).on('click', '.delete-btn', function() {
+                var studentId = $(this).data('id');
+                var studentName = $(this).data('name');
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                var parsedId = parseInt(studentId);
+                if (!Number.isInteger(parsedId)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: 'معرف الطالب غير صالح',
+                        confirmButtonText: 'حسناً'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'تأكيد الحذف',
+                    html: `<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>هل أنت متأكد أنك تريد حذف الطالب
+                            <br>
+                            <strong>${studentName}</strong>؟`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'نعم، احذفه!',
+                    cancelButtonText: 'إلغاء',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return $.ajax({
+                            url: '@Url.Action("Delete", "Students")',
+                            type: 'POST',
+                            data: {
+                                id: parsedId,
+                                __RequestVerificationToken: token
+                            }
+                        }).then(function(response) {
+                            if (!response.success) {
+                                throw new Error(response.error || 'حدث خطأ أثناء الحذف');
+                            }
+                            return response;
+                        }).catch(function(error) {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error.statusText || error.message}`
+                            );
+                        });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        if (result.value.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم الحذف!',
+                                text: 'تم حذف الطالب بنجاح',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                performSearch(); // Refresh the data
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ',
+                                text: result.value.error || 'حدث خطأ أثناء الحذف',
+                                confirmButtonText: 'حسناً'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Initialize paging on page load
+            updatePaging(@Model.Students.TotalCount, @Model.Students.PageNumber, @Model.Students.PageSize);
         });
     </script>
 }

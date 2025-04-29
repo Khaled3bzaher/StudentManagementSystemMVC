@@ -11,9 +11,9 @@
       "destination": "wwwroot/lib/bootstrap-icons/"
     },
     {
-      "provider": "cdnjs",
       "library": "sweetalert2@11.16.1",
       "destination": "wwwroot/lib/sweetalert2/"
     }
+    
   ]
 }

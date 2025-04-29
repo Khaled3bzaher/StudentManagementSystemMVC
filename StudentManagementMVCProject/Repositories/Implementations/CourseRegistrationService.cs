@@ -176,9 +176,9 @@ namespace StudentManagementMVCProject.Repositories.Implementations
                     StudentId = studentId,
                     SemesterId = semesterId,
                     TotalCredits = addedCredits,
-                    TotalCourses = addCourses, // سيتم تحديثه لاحقاً
-                    SemesterGPA = 0, // سيتم تحديثه لاحقاً
-                    CumulativeGPA = 0, // سيتم تحديثه لاحقاً
+                    TotalCourses = addCourses, 
+                    SemesterGPA = 0, 
+                    CumulativeGPA = 0, 
                     AcademicStanding = "New"
                 };
                 await _unitOfWork.Repository<AcademicRecord>().AddAsync(academicRecord);

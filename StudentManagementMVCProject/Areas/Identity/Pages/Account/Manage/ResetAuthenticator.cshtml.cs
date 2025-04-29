@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,6 +13,8 @@ using StudentManagementMVCProject.Models;
 
 namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize(Roles = "Admin")]
+
     public class ResetAuthenticatorModel : PageModel
     {
         private readonly UserManager<User> _userManager;

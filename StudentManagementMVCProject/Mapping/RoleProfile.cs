@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using StudentManagementMVCProject.DTOs.Roles;
 using StudentManagementMVCProject.ViewModels.Roles;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,9 @@ namespace StudentManagementMVCProject.Mapping
     {
         public RoleProfile()
         {
-            CreateMap<IdentityRole, GetRoleViewModel>();
             CreateMap<IdentityRole, GetRoleViewModel>().ReverseMap();
+            CreateMap<RoleWithUserCount, GetRoleViewModel>();
+
         }
     }
 }

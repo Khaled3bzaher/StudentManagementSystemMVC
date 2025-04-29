@@ -1,69 +1,369 @@
 ﻿@model IEnumerable<StudentManagementMVCProject.Models.Semester>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "إدارة الفصول الدراسية";
 }
 
-<h1>Index</h1>
+<div class="semesters-dashboard" dir="rtl">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-calendar-month"></i> إدارة الفصول الدراسية
+            </h1>
+            <div class="header-actions">
+                <a asp-action="Create" class="btn btn-success btn-add">
+                    <i class="bi bi-plus-lg"></i> إضافة فصل جديد
+                </a>
+            </div>
+        </div>
+        <div class="header-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="currentColor"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="currentColor"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="currentColor"></path>
+            </svg>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CourseRegistrationStartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CourseRegistrationEndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AcademicYear)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+    <!-- Semesters Cards -->
+    <div class="semesters-container">
+        @if (!Model.Any())
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CourseRegistrationStartDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CourseRegistrationEndDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AcademicYear.Name)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                    <a asp-action="AddSemesterCourses" asp-route-id="@item.Id">Add Courses</a>
-                </td>
-            </tr>
+            <div class="no-semesters">
+                <i class="bi bi-calendar-x"></i>
+                <h4>لا توجد فصول دراسية مسجلة</h4>
+                <p>يمكنك إضافة فصول دراسية جديدة باستخدام زر "إضافة فصل جديد"</p>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var item in Model)
+                {
+                    var now = DateTime.Now;
+                    var isActive = now >= item.StartDate && now <= item.EndDate;
+                    var isUpcoming = now < item.StartDate;
+                    var daysRemaining = (item.StartDate - now).Days;
+
+                    <div class="col">
+                        <div class="card semester-card h-100">
+                            <div class="card-header bg-primary text-white position-relative">
+                                <h5 class="semester-title">@item.Name</h5>
+                                <div class="semester-year">@item.AcademicYear.Name</div>
+
+                                <!-- حالة الفصل الدراسي -->
+                                <div class="semester-status position-absolute top-0 start-0 m-2">
+                                    @if (isActive)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-play-circle"></i> جاري الآن
+                                        </span>
+                                    }
+                                    else if (isUpcoming)
+                                    {
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-clock"></i>
+                                            @(daysRemaining > 0 ? $"يبدأ بعد {daysRemaining} يوم" : "يبدأ قريباً")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-check-circle"></i> منتهي
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="semester-details">
+                                    <div class="detail-item">
+                                        <i class="bi bi-calendar-date"></i>
+                                        <span class="detail-label">تاريخ البدء:</span>
+                                        <span class="detail-value">@item.StartDate.ToString("yyyy/MM/dd")</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="bi bi-calendar-check"></i>
+                                        <span class="detail-label">تاريخ الانتهاء:</span>
+                                        <span class="detail-value">@item.EndDate.ToString("yyyy/MM/dd")</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="bi bi-journal-plus"></i>
+                                        <span class="detail-label">تسجيل المقررات:</span>
+                                        <span class="detail-value">
+                                            @item.CourseRegistrationStartDate.ToString("yyyy/MM/dd") - @item.CourseRegistrationEndDate.ToString("yyyy/MM/dd")
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="action-buttons">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm action-btn" title="تعديل">
+                                        <i class="bi bi-pencil"></i>
+                                        <span class="d-none d-sm-inline">تعديل</span>
+                                    </a>
+                                    
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm action-btn" title="حذف">
+                                        <i class="bi bi-trash"></i>
+                                        <span class="d-none d-sm-inline">حذف</span>
+                                    </a>
+                                    <a asp-action="AddSemesterCourses" asp-route-id="@item.Id" class="btn btn-outline-success btn-sm action-btn" title="إضافة مقررات">
+                                        <i class="bi bi-journal-bookmark"></i>
+                                        <span class="d-none d-sm-inline">مقررات</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+    }
+
+    .semesters-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem 2rem;
+    }
+
+    .dashboard-header {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+    }
+
+    .page-title {
+        color: var(--dark-color);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+        .page-title i {
+            margin-left: 0.75rem;
+            color: var(--primary-color);
+        }
+
+    .btn-add {
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
+        .btn-add i {
+            margin-left: 0.5rem;
+        }
+
+    .header-wave {
+        color: rgba(67, 97, 238, 0.1);
+    }
+
+        .header-wave svg {
+            display: block;
+            width: 100%;
+            height: 5rem;
+        }
+
+    .semesters-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+    }
+
+    .no-semesters {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+        .no-semesters i {
+            font-size: 3rem;
+            color: #adb5bd;
+            margin-bottom: 1rem;
+        }
+
+        .no-semesters h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+    /* Semester Card Styles */
+    .semester-card {
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+        .semester-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        padding: 1rem;
+        border-bottom: none;
+        position: relative;
+    }
+
+    .semester-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .semester-year {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-top: 0.25rem;
+    }
+
+    .semester-status {
+        z-index: 1;
+    }
+
+        .semester-status .badge {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .semester-status .badge i {
+                font-size: 0.9rem;
+            }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .semester-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .detail-item i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        min-width: 90px;
+    }
+
+    .detail-value {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--dark-color);
+        margin-right: auto;
+    }
+
+    .card-footer {
+        background: transparent;
+        padding: 0.8rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 60px;
+        transition: all 0.2s ease;
+    }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 0.9rem;
+            margin-left: 0.2rem;
+        }
+
+    /* Responsive Styles */
+    @@media (max-width: 1200px) {
+        .semesters-dashboard {
+            padding: 0 1rem 1.5rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .action-buttons {
+            gap: 0.2rem;
+        }
+
+        .action-btn {
+            min-width: calc(50% - 0.2rem);
+            padding: 0.25rem 0.4rem;
+        }
+
+            .action-btn span {
+                display: none;
+            }
+
+            .action-btn i {
+                margin: 0;
+                font-size: 0.8rem;
+            }
+    }
+
+    @@media (max-width: 576px) {
+        .action-btn {
+            min-width: 100%;
+        }
+    }
+</style>

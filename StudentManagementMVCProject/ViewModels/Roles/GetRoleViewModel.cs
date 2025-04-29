@@ -7,7 +7,7 @@ namespace StudentManagementMVCProject.ViewModels.Roles
     {
         public string Id { get; set; }
         [Required(ErrorMessage = "Must Enter Role Name")]
-
         public string Name { get; set; }
+        public int UserCount { get; set; }
     }
 }

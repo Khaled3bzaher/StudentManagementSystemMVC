@@ -46,7 +46,9 @@ namespace StudentManagementMVCProject.Repositories.Implementations
 
         public async Task<IEnumerable<DepartmentViewModel>> GetDepartmentWithHeadsAsync()
         {
-            return await _unitOfWork.Repository<Department>().GetAsQueryAble().Include(d=>d.HeadTeacher).ThenInclude(t=>t.User).ProjectTo<DepartmentViewModel>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _unitOfWork.Repository<Department>().GetAsQueryAble().Include(d=>d.HeadTeacher).ThenInclude(t=>t.User)
+               
+                .ProjectTo<DepartmentViewModel>(_mapper.ConfigurationProvider).ToListAsync();
         }
     }
 }

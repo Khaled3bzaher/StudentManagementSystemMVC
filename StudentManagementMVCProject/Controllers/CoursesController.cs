@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using StudentManagementMVCProject.Repositories.Interfaces;
 
 namespace StudentManagementMVCProject.Controllers
 {
+    [Authorize(Roles ="Admin")]
     public class CoursesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -74,18 +76,12 @@ namespace StudentManagementMVCProject.Controllers
 
             if (ModelState.IsValid)
             {
-                if(await _unitOfWork.Repository<Course>().isExistByNameAsync(course.Name))
-                {
-                    TempData["ToastType"] = "error"; // or "error", "info", "warning"
-                    TempData["ToastMessage"] = "Course Exists Before ..!";
-
-                    //ModelState.AddModelError("Name", "Course is Added Before");
-                    return View(course);
-                }
+                
                 await _unitOfWork.Repository<Course>().AddAsync(course);
-                TempData["ToastType"] = "success"; // or "error", "info", "warning"
-                TempData["ToastMessage"] = $"Course {course.Code} {course.Name} is Created..!";
-
+                
+                TempData["SweetAlertMessage"] = $"Course {course.Code} {course.Name} is Created..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -126,17 +122,12 @@ namespace StudentManagementMVCProject.Controllers
 
             if (ModelState.IsValid)
             {
-                if (await _unitOfWork.Repository<Course>().GetAsQueryAble().AnyAsync(c=>c.Name ==course.Name && c.Id!=course.Id))
-                {
-                    TempData["ToastType"] = "error"; // or "error", "info", "warning"
-                    TempData["ToastMessage"] = "Course Exists Before ..!";
-
-                    //ModelState.AddModelError("Name", "Course is Added Before");
-                    return View(course);
-                }
+                
                 await _unitOfWork.Repository<Course>().UpdateAsync(course);
-                TempData["ToastType"] = "info"; // or "error", "info", "warning"
-                TempData["ToastMessage"] = $"Course {course.Code} {course.Name} Edited Successfully ..!";
+
+                TempData["SweetAlertMessage"] = $"Course {course.Code} {course.Name} Edited Successfully ..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -173,14 +164,19 @@ namespace StudentManagementMVCProject.Controllers
                 var DependentCourse = await _courseService.GetCourseDependent(id);
                 if (DependentCourse is not null)
                 {
-                    TempData["ToastType"] = "error"; // or "error", "info", "warning"
-                    TempData["ToastMessage"] = $"Error: I Can't Remove Prerequisite Course .. Change Dependent from Course {DependentCourse.Name} First.!";
+                    TempData["SweetAlertMessage"] = $"Error: I Can't Remove Prerequisite Course .. Change Dependent from Course {DependentCourse.Name} First.!";
+                    TempData["SweetAlertType"] = "error";
+                    TempData["SweetAlertButtonText"] = "متابعة";
+
+
                     return View(course);
                 }
                 var deletedCourse = await _unitOfWork.Repository<Course>().GetByIdAsync(id);
                 await _unitOfWork.Repository<Course>().DeleteAsync(deletedCourse);
-                TempData["ToastType"] = "success"; // or "error", "info", "warning"
-                TempData["ToastMessage"] = $"Course {deletedCourse.Name} Deleted.!";
+               
+                TempData["SweetAlertMessage"] = $"Course {deletedCourse.Name} Deleted.!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
             }
 
             return RedirectToAction(nameof(Index));

@@ -8,5 +8,7 @@ namespace StudentManagementMVCProject.Repositories.Interfaces
         Task<AcademicRecord?> GetStudentLastAcademicRecordAsync(int studentId);
         Task<AcademicRecord?> GetAcademicRecordByStudentAndSemesterAsync(int studentId, int semesterId);
         Task<List<AcademicRecord>> GetAllAcademicRecordsStudentHistoryAsync(int studentId);
+
+
     }
 }

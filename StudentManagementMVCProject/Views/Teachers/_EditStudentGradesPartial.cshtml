@@ -1,0 +1,46 @@
+﻿@model StudentManagementMVCProject.ViewModels.Courses.EditStudentGradesViewModel
+
+<div class="edit-grades-container" dir="rtl">
+    <form id="editGradesForm" method="post" asp-action="EditStudentGrades" asp-controller="Teachers">
+        <input type="hidden" asp-for="StudentId" />
+        <input type="hidden" asp-for="CourseId" />
+        <input type="hidden" asp-for="SemesterId" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="MidTerm" class="form-label">الامتحان النصفي</label>
+                <input asp-for="MidTerm" type="number" step="0.1" min="0" max="100" class="form-control" />
+                <span asp-validation-for="MidTerm" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Final" class="form-label">الامتحان النهائي</label>
+                <input asp-for="Final" type="number" step="0.1" min="0" max="100" class="form-control" />
+                <span asp-validation-for="Final" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Assignments" class="form-label">الواجبات</label>
+                <input asp-for="Assignments" type="number" step="0.1" min="0" max="100" class="form-control" />
+                <span asp-validation-for="Assignments" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Projects" class="form-label">المشاريع</label>
+                <input asp-for="Projects" type="number" step="0.1" min="0" max="100" class="form-control" />
+                <span asp-validation-for="Projects" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="AttendanceGrade" class="form-label">الحضور</label>
+                <input asp-for="AttendanceGrade" type="number" step="0.1" min="0" max="100" class="form-control" />
+                <span asp-validation-for="AttendanceGrade" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> حفظ التعديلات
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="bi bi-x-circle"></i> إلغاء
+            </button>
+        </div>
+    </form>
+</div>

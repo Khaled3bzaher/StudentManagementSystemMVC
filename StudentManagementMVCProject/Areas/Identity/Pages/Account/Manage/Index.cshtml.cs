@@ -15,6 +15,7 @@ using StudentManagementMVCProject.Models;
 using Microsoft.AspNetCore.Hosting;
 using StudentManagementMVCProject.Data;
 using StudentManagementMVCProject.Persistence.UnitOfWork;
+using StudentManagementMVCProject.Validations;
 
 namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
 {
@@ -47,18 +48,22 @@ namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Phone]
             [Display(Name = "Phone number")]
+            [PhoneNumberValidation]
             public string PhoneNumber { get; set; }
 
             [Display(Name = "Profile Image")]
             public IFormFile ProfileImage { get; set; }
 
             public string CurrentProfileImagePath { get; set; }
+            [MaxLength(100, ErrorMessage = "Max Length For Address is 100 Letters")]
             public string? Address { get; set; }
-            [Phone]
+            //[Remote(action: "VerifyParentNumber", controller: "Validations")]
             [Display(Name = "Parent Phone")]
+            [ParentNumberValidation]
             public string? ParentPhone { get; set; }
+            [MaxLength(50, ErrorMessage = "Max Length For Qualification is 50 Letters")]
+            [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Qualification must contain letters only.")]
             public string? Qualification { get; set; }
             public string? Role { get; set; }
         }
@@ -126,11 +131,12 @@ namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
             }
 
             var existingUserWithPhone = await _userManager.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == Input.PhoneNumber && u.Id != user.Id);
+                .AnyAsync(u => u.PhoneNumber == Input.PhoneNumber && u.Id != user.Id);
 
-            if (existingUserWithPhone != null)
+            if (existingUserWithPhone)
             {
-                StatusMessage = "Error: Number is already in use!";
+                StatusMessage = "Error: Number is already in use.";
+
                 ModelState.AddModelError("Input.PhoneNumber", "Number is already in use.");
                 await LoadAsync(user);
                 return Page();
@@ -138,6 +144,7 @@ namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
 
             if (Input.PhoneNumber != user.PhoneNumber)
             {
+
                 var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
                 if (!setPhoneResult.Succeeded)
                 {
@@ -198,6 +205,12 @@ namespace StudentManagementMVCProject.Areas.Identity.Pages.Account.Manage
                 var teacher = await _unitOfWork.Repository<Teacher>().GetAsQueryAble().Where(t => t.UserId == user.Id).FirstOrDefaultAsync();
                 if (teacher != null)
                 {
+                    if (string.IsNullOrEmpty(Input.Qualification))
+                    {
+                        ModelState.AddModelError("Input.Qualification", "Qualification Must be Not Empty");
+                        await LoadAsync(user);
+                        return Page();
+                    }
                     teacher.Qualification = Input.Qualification;
                     await _unitOfWork.Repository<Teacher>().UpdateAsync(teacher);
                 }

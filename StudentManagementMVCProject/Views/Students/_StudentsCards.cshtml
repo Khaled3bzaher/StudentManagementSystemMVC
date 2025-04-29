@@ -1,50 +1,110 @@
 ﻿@model IEnumerable<StudentListViewModel>
 
+<div id="paging-data"
+     style="display: none;"
+     data-total-count="@ViewData["TotalCount"]"
+     data-page-number="@ViewData["PageNumber"]"
+     data-page-size="@ViewData["PageSize"]">
+</div>
+
 @if (Model.Any())
 {
     @foreach (var student in Model)
     {
-        // تحديد لون الـ card-header بناءً على StudentStatus
-        var headerClass = student.StudentStatus switch
+        var headerClass = "status-default";
+        switch (student.StudentStatus)
         {
-            StudentStatus.Active => "bg-success",
-            StudentStatus.Graduated => "bg-info",
-            StudentStatus.Suspended => "bg-warning",
-            StudentStatus.Expelled => "bg-danger",
-            StudentStatus.Withdrawn => "bg-secondary",
-            _ => "bg-primary" // افتراضي إذا لم تتطابق الحالة
-        };
+            case StudentStatus.Active:
+                headerClass = "status-active";
+                break;
+            case StudentStatus.Graduated:
+                headerClass = "status-graduated";
+                break;
+            case StudentStatus.Suspended:
+                headerClass = "status-suspended";
+                break;
+            case StudentStatus.Expelled:
+                headerClass = "status-expelled";
+                break;
+            case StudentStatus.Withdrawn:
+                headerClass = "status-withdrawn";
+                break;
+        }
 
         <div class="col">
-            <div class="card h-100">
-                <div class="card-header @headerClass text-white d-flex align-items-center">
-                    <span class="badge bg-light text-dark rounded-circle me-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+            <div class="card student-card h-100">
+                <div class="card-header @headerClass text-white">
+                    <div class="student-avatar">
                         @student.FullName.FirstOrDefault()
-                    </span>
-                    <h6 class="card-title mb-0">@student.FullName</h6>
+                    </div>
+                    <h5 class="card-title">@student.FullName</h5>
                 </div>
                 <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><i class="bi bi-hash me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.StudentNumber) :</strong> @(student.StudentNumber ?? "NA")</li>
-                        <li class="list-group-item"><i class="bi bi-card-text me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.NationalId) :</strong> @Html.DisplayFor(model => student.NationalId)</li>
-                        <li class="list-group-item"><i class="bi bi-envelope me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.Email) :</strong> @Html.DisplayFor(model => student.Email)</li>
-                        <li class="list-group-item"><i class="bi bi-building me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.Department) :</strong> @Html.DisplayFor(model => student.Department)</li>
-                        <li class="list-group-item"><i class="bi bi-book me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.AcademicLevel) :</strong> @Html.DisplayFor(model => student.AcademicLevel)</li>
-                        <li class="list-group-item"><i class="bi bi-check-circle me-2 text-primary"></i><strong>@Html.DisplayNameFor(model => student.StudentStatus) :</strong> @Html.DisplayFor(model => student.StudentStatus)</li>
-                    </ul>
+                    <div class="detail-item">
+                        <i class="bi bi-hash detail-icon"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">رقم الطالب</span>
+                            <span class="detail-value">@(student.StudentNumber ?? "غير متوفر")</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="bi bi-card-text detail-icon"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">الرقم القومي</span>
+                            <span class="detail-value">@student.NationalId</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="bi bi-envelope detail-icon"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">البريد الإلكتروني</span>
+                            <span class="detail-value">@student.Email</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="bi bi-building detail-icon"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">القسم</span>
+                            <span class="detail-value">@student.Department</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="bi bi-book detail-icon"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">المستوى</span>
+                            <span class="detail-value">@student.AcademicLevel</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="bi bi-check-circle detail-icon"></i>
+                        <div class="detail-content">
+                            <span class="detail-label">الحالة</span>
+                            <span class="detail-value">@student.StudentStatus</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-footer bg-transparent">
-                    <div class="d-flex gap-2">
-                        <a asp-action="Courses" asp-route-id="@student.Id" class="btn btn-primary btn-sm flex-fill">
-                            <i class="bi bi-book"></i> عرض المقررات
+                <div class="card-footer">
+                    <div class="action-buttons">
+                        
+                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-outline-primary btn-sm action-btn" title="تعديل">
+                            <i class="bi bi-pencil"></i>
+                            <span class="d-none d-md-inline">تعديل</span>
                         </a>
-                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-outline-primary btn-sm flex-fill">تعديل</a>
-                        <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-outline-info btn-sm flex-fill">تفاصيل</a>
-                        <button type="button" class="btn btn-outline-danger btn-sm flex-fill delete-btn"
+                        <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-outline-info btn-sm action-btn" title="تفاصيل">
+                            <i class="bi bi-info-circle"></i>
+                            <span class="d-none d-md-inline">تفاصيل</span>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm action-btn delete-btn"
                                 data-id="@student.Id"
-                                data-name="@student.FullName">
-                            حذف
+                                data-name="@student.FullName"
+                                title="حذف">
+                            <i class="bi bi-trash"></i>
+                            <span class="d-none d-md-inline">حذف</span>
                         </button>
+                        <a asp-action="Courses" asp-route-id="@student.Id" class="btn btn-primary btn-sm action-btn" title="عرض المقررات">
+                            <i class="bi bi-book"></i>
+                            <span class="d-none d-md-inline">المقررات</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -54,8 +114,10 @@
 else
 {
     <div class="col-12">
-        <div class="alert alert-info text-center">
-            <i class="bi bi-info-circle me-2"></i>لا توجد نتائج مطابقة للبحث
+        <div class="no-results">
+            <i class="bi bi-search"></i>
+            <h5>لا توجد نتائج مطابقة للبحث</h5>
+            <p>حاول تعديل معايير البحث الخاصة بك</p>
         </div>
     </div>
 }

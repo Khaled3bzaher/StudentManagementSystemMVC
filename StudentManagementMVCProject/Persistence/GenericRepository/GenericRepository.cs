@@ -49,6 +49,11 @@ namespace StudentManagementMVCProject.Persistence.GenericRepository
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await _dbSet.CountAsync();
+        }
+
         public Task<bool> isExistById(int id)
         {
             return _dbSet.AnyAsync(e => EF.Property<int>(e, "Id") == id);

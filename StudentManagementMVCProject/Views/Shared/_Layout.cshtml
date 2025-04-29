@@ -1,11 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<User> SignInManager
+@inject IStudentService _studentService
+@inject ITeacherService _teacherService
+@inject UserManager<User> _userManager
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - StudentManagementMVCProject</title>
+    <title>@ViewData["Title"] - Student Management System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -26,11 +29,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house-door me-1"></i> Home
-                            </a>
-                        </li>
+                        
                         @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
@@ -81,7 +80,51 @@
                                 </ul>
                             </li>
 
-                            
+
+                        }
+                        else if (SignInManager.IsSignedIn(User) && User.IsInRole("Student"))
+                        {
+                            var userId = _userManager.GetUserId(User);
+                            var student = await _studentService.GetStudentIdByUserIdAsync(userId);
+
+                            if (student != null && student.UserId==userId)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="Details" asp-route-id="@student.Id">
+                                        <i class="bi bi-people me-1"></i> My Profile
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="Courses" asp-route-id="@student.Id">
+                                        <i class="bi bi-book me-1"></i> My Courses
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="CoursesRegistration" asp-action="Index">
+                                        <i class="bi bi-clipboard-check me-1"></i> Courses Registration
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else if (SignInManager.IsSignedIn(User) && User.IsInRole("Teacher"))
+                        {
+                            var userId = _userManager.GetUserId(User);
+                            var teacher = await _teacherService.GetTeacherIdByUserIdAsync(userId);
+
+                            if (teacher != null && teacher.UserId == userId)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Teachers" asp-action="Details" asp-route-id="@teacher.Id">
+                                        <i class="bi bi-people me-1"></i> My Profile
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Teachers" asp-action="Courses" asp-route-id="@teacher.Id">
+                                        <i class="bi bi-book me-1"></i> My Courses
+                                    </a>
+                                </li>
+                                
+                            }
                         }
                         
                     </ul>

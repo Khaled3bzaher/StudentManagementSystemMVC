@@ -9,7 +9,11 @@ namespace StudentManagementMVCProject.Mapping
     {
         public DepartmentProfile() {
             CreateMap<Department, DepartmentViewModel>()
-                .ForMember(dest => dest.DepartmentHeadName, opt => opt.MapFrom(src => src.HeadTeacher.User.FirstName + " " + src.HeadTeacher.User.LastName));
+                .ForMember(dest => dest.DepartmentHeadName, opt => opt.MapFrom(src => src.HeadTeacher.User.FirstName + " " + src.HeadTeacher.User.LastName))
+                .ForMember(dest => dest.CoursesCount, opt => opt.MapFrom(src => src.Courses.Count))
+                .ForMember(dest => dest.TeachersCount, opt => opt.MapFrom(src => src.Teachers.Count))
+                .ForMember(dest => dest.StudentsCount, opt => opt.MapFrom(src => src.Students.Count))
+                ;
 
             CreateMap<DepartmentViewModel, Department>();
 

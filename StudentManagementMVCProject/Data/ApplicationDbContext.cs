@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using StudentManagementMVCProject.DTOs.Roles;
 using StudentManagementMVCProject.Models;
+using System.Reflection.Emit;
 
 namespace StudentManagementMVCProject.Data
 {
@@ -52,7 +54,9 @@ namespace StudentManagementMVCProject.Data
                 .HasForeignKey(d=>d.HeadTeacherID)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            
+            builder.Entity<RoleWithUserCount>()
+                .HasNoKey()
+                .ToSqlQuery("EXEC GetRolesWithUserCount");
 
         }
     }

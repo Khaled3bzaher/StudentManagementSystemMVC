@@ -7,6 +7,7 @@ using StudentManagementMVCProject.Persistence.GenericRepository;
 using StudentManagementMVCProject.Persistence.UnitOfWork;
 using StudentManagementMVCProject.Repositories.Interfaces;
 using StudentManagementMVCProject.ViewModels.Courses;
+using StudentManagementMVCProject.ViewModels.Students;
 
 namespace StudentManagementMVCProject.Repositories.Implementations
 {
@@ -46,6 +47,14 @@ namespace StudentManagementMVCProject.Repositories.Implementations
         {
             return await _unitOfWork.Repository<Course>().GetAsQueryAble().Where(course => course.Id != id).ProjectTo<CourseDropDownItemsViewModel>(_mapper.ConfigurationProvider).ToListAsync();
 
+        }
+
+        public async Task<int> GetCourseTeacherIdBySmesterId(int semesterId,int courseId)
+        {
+            var teacher = await _unitOfWork.Repository<CourseSchedule>().GetAsQueryAble().FirstOrDefaultAsync(cs => cs.SemesterId == semesterId && cs.CourseId == courseId);
+            if (teacher is null)
+                return 0;
+            return teacher.TeacherId;
         }
 
         public async Task<Course?> GetCourseByIdAsync(int id)
@@ -101,7 +110,138 @@ namespace StudentManagementMVCProject.Repositories.Implementations
                 .GetAsQueryAble()
                 .AnyAsync(e => e.StudentId == id &&
                              e.CourseSchedule.CourseId == course.PrerequisiteCourseId &&
-                             e.GradeStatus == "Passed");
+                             e.Status == "Passed");
+        }
+
+        //STATUS
+        //REGISTERED - PASSED - FAILED
+
+
+        public async Task<List<CourseStudentsListViewModel>?> GetCourseStudentsListAsync(int courseId,int semesterId)
+        {
+            return await _unitOfWork.Repository<Enrollment>().GetAsQueryAble()
+                .Include(e => e.Grade)
+                .Include(e => e.CourseSchedule)
+                .Include(e => e.Student)
+                .ThenInclude(s => s.User)
+                .Where(e => e.CourseSchedule.CourseId == courseId && e.CourseSchedule.SemesterId == semesterId )
+                .Select(e => new CourseStudentsListViewModel
+                {
+                    StudentId = e.StudentId,
+                    StudentName = (e.Student.User.FirstName + " " + e.Student.User.LastName),
+                    Email = e.Student.User.Email,
+                    PhoneNumber = e.Student.User.PhoneNumber,
+                    StudentNumber = e.Student.StudentNumber,
+                    AcademicLevel = e.Student.AcademicLevel,
+                    Assignments = e.Grade.Assignments ?? 0,
+                    AttendanceGrade = e.Grade.AttendanceGrade ?? 0,
+                    MidTerm=e.Grade.MidTerm ?? 0,
+                    Projects=e.Grade.Projects ?? 0,
+                    Final=e.Grade.Final ?? 0,
+                    TotalGrade=e.Grade.TotalGrade ?? 0,
+                    CourseStatus=e.Status,
+                    
+                }).ToListAsync();
+        }
+
+        public async Task<EditStudentGradesViewModel?> GetStudentGradesAsync(int studentId, int courseId, int semesterId)
+        {
+            return await _unitOfWork.Repository<Enrollment>().GetAsQueryAble()
+                .Include(e => e.Grade)
+                .Include(e => e.CourseSchedule)
+                .Include(e => e.Student)
+                .ThenInclude(s => s.User)
+                .Where(e => e.CourseSchedule.CourseId == courseId && e.CourseSchedule.SemesterId == semesterId && e.StudentId == studentId)
+                .Select(e => new EditStudentGradesViewModel
+                {
+                    StudentId = e.StudentId,
+                    SemesterId = semesterId,
+                    CourseId = e.CourseSchedule.CourseId,
+                    Assignments = e.Grade.Assignments ?? 0,
+                    AttendanceGrade = e.Grade.AttendanceGrade ?? 0,
+                    MidTerm = e.Grade.MidTerm ?? 0,
+                    Projects = e.Grade.Projects ?? 0,
+                    Final = e.Grade.Final ?? 0,
+                    TotalGrade = e.Grade.TotalGrade ?? 0,
+                    LetterGrade = e.Grade.LetterGrade ?? "F",
+                    CanEdit = e.Status == "Registered"
+
+
+                }).FirstOrDefaultAsync();
+        }
+
+        public async Task<(bool success,string errorMessage)> UpdateStudentGradesAsync(EditStudentGradesViewModel model)
+        {
+            var studentEnrollment = await _unitOfWork.Repository<Enrollment>().GetAsQueryAble()
+                .Include(e => e.Grade)
+                .Include(e => e.CourseSchedule)
+                .FirstOrDefaultAsync(e => e.StudentId == model.StudentId && e.CourseSchedule.SemesterId == model.SemesterId && e.CourseSchedule.CourseId == model.CourseId);
+
+            if (studentEnrollment is null)
+                return (false, "Can't Find Course Enrollment ..!");
+
+            if (studentEnrollment.Status == "Finished")
+            {
+                return (false, "Cannot update grades for a finished course!");
+            }
+
+            model.TotalGrade = CalculateTotalGrade(model);
+            if(studentEnrollment.Grade is null)
+            {
+                await _unitOfWork.Repository<Grade>().AddAsync(new Grade {
+                    EnrollmentId= studentEnrollment.Id,
+                    Assignments = model.Assignments,
+                    AttendanceGrade = model.AttendanceGrade,
+                    Final = model.Final,
+                    MidTerm = model.MidTerm,
+                    Projects = model.Projects,
+                    TotalGrade = model.TotalGrade,
+                    LetterGrade = CalculateLetterGrade(model.TotalGrade),
+                    LastUpdated = DateTime.Now,
+                });
+
+            }
+            else
+            {
+                studentEnrollment.Grade.Assignments = model.Assignments;
+                studentEnrollment.Grade.AttendanceGrade = model.AttendanceGrade;
+                studentEnrollment.Grade.Final = model.Final;
+                studentEnrollment.Grade.MidTerm = model.MidTerm;
+                studentEnrollment.Grade.Projects = model.Projects;
+                studentEnrollment.Grade.TotalGrade = model.TotalGrade;
+                studentEnrollment.Grade.LetterGrade = CalculateLetterGrade(model.TotalGrade);
+                studentEnrollment.Grade.LastUpdated = DateTime.Now;
+            }
+            studentEnrollment.GradeStatus = "Registered";
+            
+
+            await _unitOfWork.CompleteAsync();
+            return (true, "Grade Update Successfully..!");
+        }
+        private float CalculateTotalGrade(EditStudentGradesViewModel model)
+        {
+            float total = 0;
+            total += (model.MidTerm ?? 0);
+            total += (model.Final ?? 0);
+            total += (model.Assignments ?? 0) ;
+            total += (model.Projects ?? 0);
+            total += (model.AttendanceGrade ?? 0);
+
+            return total;
+        }
+        private string CalculateLetterGrade(float? totalGrade)
+        {
+            if (!totalGrade.HasValue) return null;
+
+            return totalGrade switch
+            {
+                >= 90 => "A",
+                >= 80 => "B",
+                >= 70 => "C",
+                >= 60 => "D",
+                >= 50 => "E",
+                _ => "F"
+            };
         }
     }
 }

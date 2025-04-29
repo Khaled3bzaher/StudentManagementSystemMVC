@@ -1,0 +1,456 @@
+﻿@model IEnumerable<StudentManagementMVCProject.ViewModels.Courses.CourseStudentsListViewModel>
+@{
+    ViewData["Title"] = $"الطلاب المسجلين في مقرر {ViewData["CourseName"]}";
+}
+
+<div class="courses-dashboard" dir="rtl">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-people-fill"></i> @ViewData["Title"]
+            </h1>
+            <div class="header-actions d-flex align-items-center">
+                <a asp-action="Courses" asp-route-id="@ViewData["TeacherId"]" class="btn btn-secondary btn-back">
+                    <i class="bi bi-arrow-right"></i> العودة إلى المقررات
+                </a>
+                <div class="search-box">
+                    <input type="text" id="studentSearch" placeholder="ابحث عن طالب..." class="form-control">
+                    <i class="bi bi-search search-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="header-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="currentColor"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="currentColor"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="currentColor"></path>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Students Container -->
+    <div class="courses-container">
+        @if (!Model.Any())
+        {
+            <div class="no-courses">
+                <i class="bi bi-people"></i>
+                <h4>لا يوجد طلاب مسجلين</h4>
+                <p>لا يوجد طلاب مسجلين في هذا المقرر حالياً</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th width="100"><i class="bi bi-hash"></i> الرقم</th>
+                            <th width="250"><i class="bi bi-person"></i> اسم الطالب</th>
+                            <th width="200"><i class="bi bi-envelope"></i> البريد الإلكتروني</th>
+                            <th width="150"><i class="bi bi-phone"></i> الهاتف</th>
+                            <th width="120"><i class="bi bi-award"></i> المستوى</th>
+                            <th width="90" class="text-center"><i class="bi bi-file-text"></i> النصفي</th>
+                            <th width="90" class="text-center"><i class="bi bi-file-text"></i> النهائي</th>
+                            <th width="90" class="text-center"><i class="bi bi-file-text"></i> الواجبات</th>
+                            <th width="90" class="text-center"><i class="bi bi-file-text"></i> المشاريع</th>
+                            <th width="90" class="text-center"><i class="bi bi-file-text"></i> الحضور</th>
+                            <th width="90" class="text-center"><i class="bi bi-file-text"></i> المجموع</th>
+                            <th width="120"><i class="bi bi-gear"></i> الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model)
+                        {
+                            <tr>
+                                <td>@student.StudentNumber</td>
+                                <td class="student-name">@student.StudentName</td>
+                                <td class="text-truncate" title="@student.Email">@student.Email</td>
+                                <td>@student.PhoneNumber</td>
+                                <td>@student.AcademicLevel</td>
+                                <td class="text-center @GetGradeColor(student.MidTerm)">@(student.MidTerm?.ToString("0.0") ?? "-")</td>
+                                <td class="text-center @GetGradeColor(student.Final)">@(student.Final?.ToString("0.0") ?? "-")</td>
+                                <td class="text-center @GetGradeColor(student.Assignments)">@(student.Assignments?.ToString("0.0") ?? "-")</td>
+                                <td class="text-center @GetGradeColor(student.Projects)">@(student.Projects?.ToString("0.0") ?? "-")</td>
+                                <td class="text-center @GetGradeColor(student.AttendanceGrade)">@(student.AttendanceGrade?.ToString("0.0") ?? "-")</td>
+                                <td class="text-center @GetGradeColor(student.TotalGrade) fw-bold">@(student.TotalGrade?.ToString("0.0") ?? "-")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning edit-grade-btn"
+                                            data-student-id="@student.StudentId"
+                                            data-course-id="@ViewData["CourseId"]"
+                                            data-semester-id="@ViewData["SemesterId"]">
+                                        <i class="bi bi-pencil-square"></i> تعديل
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Edit Grades Modal -->
+<div class="modal fade" id="editGradesModal" tabindex="-1" aria-labelledby="editGradesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editGradesModalLabel">تعديل درجات الطالب</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editGradesModalBody">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+    }
+
+    .courses-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem 2rem;
+    }
+
+    .dashboard-header {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+    }
+
+    .page-title {
+        color: var(--dark-color);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+        .page-title i {
+            margin-left: 0.75rem;
+            color: var(--primary-color);
+        }
+
+    .btn-back {
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
+        .btn-back i {
+            margin-left: 0.5rem;
+        }
+
+    .header-wave {
+        color: rgba(67, 97, 238, 0.1);
+    }
+
+        .header-wave svg {
+            display: block;
+            width: 100%;
+            height: 5rem;
+        }
+
+    .courses-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        min-height: 300px;
+    }
+
+    .no-courses {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+        .no-courses i {
+            font-size: 3rem;
+            color: #adb5bd;
+            margin-bottom: 1rem;
+        }
+
+        .no-courses h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+    .search-box {
+        position: relative;
+        margin-right: 1rem;
+    }
+
+        .search-box input {
+            padding-right: 2.5rem;
+            border-radius: 50px;
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background-color: rgba(67, 97, 238, 0.05);
+            }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .table .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.25rem;
+        }
+
+            .table .btn i {
+                margin-left: 0.25rem;
+            }
+
+    .text-orange {
+        color: #fd7e14;
+    }
+
+    @@media (max-width: 1200px) {
+        .courses-dashboard
+
+    {
+        padding: 0 1rem 1.5rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .header-actions
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .search-box {
+        width: 100%;
+        margin-right: 0;
+    }
+
+        .search-box input {
+            width: 100%;
+        }
+
+    }
+</style>
+
+@functions {
+    public string GetGradeColor(float? grade)
+    {
+        if (!grade.HasValue) return "text-muted";
+
+        if (grade >= 90) return "text-success";
+        if (grade >= 80) return "text-info";
+        if (grade >= 70) return "text-primary";
+        if (grade >= 60) return "text-warning";
+        if (grade >= 50) return "text-orange";
+        return "text-danger";
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Initialize modal
+            var editGradesModal = new bootstrap.Modal(document.getElementById('editGradesModal'));
+
+            // Handle edit button click
+            $('.edit-grade-btn').click(function () {
+                var studentId = $(this).data('student-id');
+                var courseId = $(this).data('course-id');
+                var semesterId = $(this).data('semester-id');
+
+                // Show loading state
+                $('#editGradesModalBody').html(`
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">جار التحميل...</span>
+                        </div>
+                        <p class="mt-2">جار تحميل بيانات الطالب...</p>
+                    </div>
+                `);
+
+                editGradesModal.show();
+
+                // Check if course is editable
+                $.get('/Teachers/GetStudentGrades', {
+                    studentId: studentId,
+                    courseId: courseId,
+                    semesterId: semesterId
+                }, function (data) {
+                    if (!data.canEdit) {
+                        $('#editGradesModalBody').html(`
+                            <div class="alert alert-warning text-center py-4">
+                                <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+                                <h4 class="mt-3">لا يمكن التعديل</h4>
+                                <p>لا يمكن تعديل درجات الطالب لأن حالة المقرر "منتهي".</p>
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    // Load the edit form
+                    $('#editGradesModalBody').load('/Teachers/GetEditGradesPartial?studentId=' + studentId + '&courseId=' + courseId + '&semesterId=' + semesterId, function () {
+                        // Reinitialize validation
+                        var form = $('#editGradesForm');
+                        form.removeData('validator').removeData('unobtrusiveValidation');
+                        $.validator.unobtrusive.parse(form);
+                    });
+                }).fail(function () {
+                    $('#editGradesModalBody').html(`
+                        <div class="alert alert-danger text-center py-4">
+                            <i class="bi bi-exclamation-octagon-fill fs-1"></i>
+                            <h4 class="mt-3">حدث خطأ</h4>
+                            <p>فشل في تحميل بيانات الطالب. يرجى المحاولة مرة أخرى.</p>
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                        </div>
+                    `);
+                });
+            });
+
+            // Handle form submission
+            $(document).on('submit', '#editGradesForm', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                if (!form.valid()) {
+                    return;
+                }
+
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: '/Teachers/EditStudentGrades',
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    beforeSend: function () {
+                        $('#editGradesModalBody').html(`
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">جار التحميل...</span>
+                                </div>
+                                <p class="mt-2">جار حفظ التعديلات...</p>
+                            </div>
+                        `);
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            editGradesModal.hide();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم بنجاح',
+                                text: response.message || 'تم تحديث الدرجات بنجاح!',
+                                confirmButtonText: 'حسناً',
+                                timer: 2000,
+                                timerProgressBar: true,
+                                willClose: () => {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            $('#editGradesModalBody').html(`
+                                <div class="alert alert-danger text-center py-4">
+                                    <i class="bi bi-exclamation-octagon-fill fs-1"></i>
+                                    <h4 class="mt-3">حدث خطأ</h4>
+                                    <p>${response.error || 'فشل في تحديث الدرجات'}</p>
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                                </div>
+                            `);
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMessage = "حصل خطأ في الخادم";
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            errorMessage = response.error || errorMessage;
+                        } catch (e) { }
+
+                        $('#editGradesModalBody').html(`
+                            <div class="alert alert-danger text-center py-4">
+                                <i class="bi bi-exclamation-octagon-fill fs-1"></i>
+                                <h4 class="mt-3">حدث خطأ</h4>
+                                <p>${errorMessage}</p>
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                            </div>
+                        `);
+                    }
+                });
+            });
+
+            // Handle search
+            $('#studentSearch').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+                $('.table tbody tr').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+        });
+    </script>
+}

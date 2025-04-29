@@ -1,58 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using StudentManagementMVCProject.Data;
 using StudentManagementMVCProject.Models;
 using StudentManagementMVCProject.Persistence.UnitOfWork;
 using StudentManagementMVCProject.Repositories.Interfaces;
+using StudentManagementMVCProject.Validations;
 using StudentManagementMVCProject.ViewModels.Courses;
 
 namespace StudentManagementMVCProject.Controllers
 {
+    [Authorize]
     public class SemestersController : Controller
     {
         private readonly IUnitOfWork _unitofwork;
         private readonly ICourseService _courseService;
         private readonly ITeacherService _teacherService;
+        private readonly ISemesterService _semesterService;
 
-        public SemestersController(IUnitOfWork unitofwork,ICourseService courseService, ITeacherService teacherService)
+        public SemestersController(IUnitOfWork unitofwork,ICourseService courseService, ITeacherService teacherService,ISemesterService semesterService)
         {
             _unitofwork = unitofwork;
             _courseService = courseService;
             _teacherService = teacherService;
+            _semesterService = semesterService;
         }
 
         // GET: Semesters
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            var Semesters = await _unitofwork.Repository<Semester>().GetAsQueryAble().Include(s=>s.AcademicYear).ToListAsync();
+            var Semesters = await _unitofwork.Repository<Semester>().GetAsQueryAble().Include(s=>s.AcademicYear).OrderBy(s=>s.StartDate).ToListAsync();
             return View(Semesters);
         }
 
-        // GET: Semesters/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var semester = await _unitofwork.Repository<Semester>().GetAsQueryAble()
-                .Include(s => s.AcademicYear)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (semester == null)
-            {
-                return NotFound();
-            }
-
-            return View(semester);
-        }
+       
 
         // GET: Semesters/Create
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             var academicYearList = await _unitofwork.Repository<AcademicYear>().GetAllAsync();
@@ -63,11 +48,15 @@ namespace StudentManagementMVCProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Semester semester)
         {
             if (ModelState.IsValid)
             {
                 await _unitofwork.Repository<Semester>().AddAsync(semester);
+                TempData["SweetAlertMessage"] = $"Semester {semester.Name} is Created..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
                 return RedirectToAction(nameof(Index));
             }
             var academicYearList = await _unitofwork.Repository<AcademicYear>().GetAllAsync();
@@ -76,6 +65,7 @@ namespace StudentManagementMVCProject.Controllers
         }
 
         // GET: Semesters/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -99,6 +89,7 @@ namespace StudentManagementMVCProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, Semester semester)
         {
             if (id != semester.Id)
@@ -110,8 +101,10 @@ namespace StudentManagementMVCProject.Controllers
             {
                
                     await _unitofwork.Repository<Semester>().UpdateAsync(semester);
+                TempData["SweetAlertMessage"] = $"Semester {semester.Name} is Updated..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
 
-                
                 return RedirectToAction(nameof(Index));
             }
             var academicYearList = await _unitofwork.Repository<AcademicYear>().GetAllAsync();
@@ -120,6 +113,7 @@ namespace StudentManagementMVCProject.Controllers
         }
 
         // GET: Semesters/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -141,6 +135,7 @@ namespace StudentManagementMVCProject.Controllers
         // POST: Semesters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var semester = await _unitofwork.Repository<Semester>().GetAsQueryAble()
@@ -149,12 +144,14 @@ namespace StudentManagementMVCProject.Controllers
             if (semester != null)
             {
                 await _unitofwork.Repository<Semester>().DeleteAsync(semester);
-
+                TempData["SweetAlertMessage"] = $"Semester {semester.Name} is Deleted..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
             }
 
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddSemesterCourses(int id)
         {
             var semester = await _unitofwork.Repository<Semester>().GetAsQueryAble()
@@ -178,11 +175,11 @@ namespace StudentManagementMVCProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddSemesterCourses(int id, List<CourseTeacher> CourseTeacherPairs)
         {
             if (!ModelState.IsValid)
             {
-                // إعادة تحميل البيانات في حالة وجود أخطاء
                 var semester = await _unitofwork.Repository<Semester>()
                     .GetAsQueryAble()
                     .Include(s => s.AcademicYear)
@@ -206,26 +203,22 @@ namespace StudentManagementMVCProject.Controllers
                 return View(semester);
             }
 
-            // جلب الجداول الزمنية الحالية
             var currentSchedules = await _unitofwork.Repository<CourseSchedule>()
                 .GetAsQueryAble()
                 .Where(cs => cs.SemesterId == id)
                 .ToListAsync();
 
-            // تحديد المقررات المحذوفة
             var submittedIds = CourseTeacherPairs.Where(p => p.ScheduleId > 0).Select(p => p.ScheduleId).ToHashSet();
             var toDelete = currentSchedules.Where(cs => !submittedIds.Contains(cs.Id)).ToList();
 
-            // حذف المقررات المحذوفة
             foreach (var schedule in toDelete)
             {
                 await _unitofwork.Repository<CourseSchedule>().DeleteAsync(schedule);
             }
 
-            // معالجة المقررات المتبقية
             foreach (var pair in CourseTeacherPairs)
             {
-                if (pair.ScheduleId > 0) // تحديث مقرر موجود
+                if (pair.ScheduleId > 0) 
                 {
                     var existing = currentSchedules.FirstOrDefault(cs => cs.Id == pair.ScheduleId);
                     if (existing != null)
@@ -235,7 +228,7 @@ namespace StudentManagementMVCProject.Controllers
                         await _unitofwork.Repository<CourseSchedule>().UpdateAsync(existing);
                     }
                 }
-                else // إضافة مقرر جديد
+                else 
                 {
                     var newSchedule = new CourseSchedule
                     {
@@ -246,10 +239,19 @@ namespace StudentManagementMVCProject.Controllers
                     await _unitofwork.Repository<CourseSchedule>().AddAsync(newSchedule);
                 }
             }
-            TempData["ToastType"] = "success"; // or "error", "info", "warning"
-            TempData["ToastMessage"] = "تمت العملية بنجاح!";
-
+           
+            TempData["SweetAlertMessage"] = $"Courses is Added..!";
+            TempData["SweetAlertType"] = "success";
+            TempData["SweetAlertButtonText"] = "متابعة";
             return RedirectToAction(nameof(Index));
+        }
+        [AjaxOnly]
+        public async Task<IActionResult> GetSemestersByAcademicYearId(int academicYearId)
+        {
+           
+
+            var semesters = await _semesterService.GetSemestersByAcademicYearAsync(academicYearId);
+            return Json(semesters.Select(s => new { s.Id, s.Name }));
         }
 
     }

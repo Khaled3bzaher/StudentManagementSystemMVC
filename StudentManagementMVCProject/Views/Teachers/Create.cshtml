@@ -1,90 +1,143 @@
 ﻿@model AddTeacherDTO
-
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = $"Create Teacher";
 }
 
-<h1>Create</h1>
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center fw-bold text-primary">Create New Teacher</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 p-4 bg-light">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<h4>Teacher</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <!-- Personal Information -->
+                    <h5 class="mb-3 text-secondary fw-semibold"><i class="bi bi-person-circle me-2"></i>Personal Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
+                                <input asp-for="FirstName" class="form-control border-start-0" maxlength="50" placeholder="Enter first name" />
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
+                                <input asp-for="LastName" class="form-control border-start-0" maxlength="50" placeholder="Enter last name" />
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NationalId" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-card-text"></i></span>
+                                <input asp-for="NationalId" class="form-control border-start-0" maxlength="14" placeholder="Enter national ID" />
+                            </div>
+                            <span asp-validation-for="NationalId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control border-start-0" maxlength="11" placeholder="Enter phone number" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DateOfBirth" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar"></i></span>
+                                <input asp-for="DateOfBirth" class="form-control border-start-0 MaxDate" type="date" min="1900-01-01" />
+                            </div>
+                            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label asp-for="FirstName"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
+                    <!-- Professional Information -->
+                    <h5 class="mt-4 mb-3 text-secondary fw-semibold"><i class="bi bi-briefcase me-2"></i>Professional Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="DepartmentId" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-building"></i></span>
+                                <select asp-for="DepartmentId" class="form-select border-start-0" asp-items="@(ViewData["DepartmentId"] as SelectList)">
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="DepartmentId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="HireDate" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-check"></i></span>
+                                <input asp-for="HireDate" class="form-control border-start-0 MaxDate" type="date" />
+                            </div>
+                            <span asp-validation-for="HireDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Qualification" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-award"></i></span>
+                                <input asp-for="Qualification" class="form-control border-start-0" maxlength="50" placeholder="Enter qualification" />
+                            </div>
+                            <span asp-validation-for="Qualification" class="text-danger small"></span>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label asp-for="LastName"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
+                    <!-- Account Information -->
+                    <h5 class="mt-4 mb-3 text-secondary fw-semibold"><i class="bi bi-shield-lock me-2"></i>Account Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control border-start-0" placeholder="Enter email" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-medium text-muted"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control border-start-0" type="password" placeholder="Enter password" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label asp-for="NationalId"></label>
-                <input asp-for="NationalId" class="form-control" />
-                <span asp-validation-for="NationalId" class="text-danger"></span>
+                    <!-- Submit Button -->
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill">
+                            <i class="bi bi-person-plus-fill me-2"></i>Create Teacher
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-5 py-2 rounded-pill ms-2">
+                            <i class="bi bi-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-group">
-                <label asp-for="PhoneNumber"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            @* / *@
-            <div class="form-group">
-                <label asp-for="DateOfBirth"></label>
-                <input asp-for="DateOfBirth" class="form-control" type="date" />
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="DepartmentId"></label>
-                <select asp-for="DepartmentId" class="form-control" asp-items="@(ViewData["DepartmentId"] as SelectList)">
-                </select>
-                <span asp-validation-for="DepartmentId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="HireDate"></label>
-                <input asp-for="HireDate" class="form-control" type="date" />
-                <span asp-validation-for="HireDate" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Qualification"></label>
-                <input asp-for="Qualification" class="form-control" />
-                <span asp-validation-for="Qualification" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date().toISOString().split('T')[0]; 
+
+            const dateInputs = document.querySelectorAll('.MaxDate');
+
+            dateInputs.forEach(input => {
+                if (input.id === 'HireDate') {
+                    input.setAttribute('max', today);
+                } else if (input.id === 'DateOfBirth') {
+                    input.setAttribute('max', today);
+                }
+            });
+        });
+    </script>
 }

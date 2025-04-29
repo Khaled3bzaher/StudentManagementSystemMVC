@@ -9,6 +9,7 @@ namespace StudentManagementMVCProject.ViewModels.Students
     {
         public int Id { get; set; }
 
+
         [Remote(action: "VerifyStudentNumber", controller: "Validations", AdditionalFields = "Id")]
         public string? StudentNumber { get; set; }
 

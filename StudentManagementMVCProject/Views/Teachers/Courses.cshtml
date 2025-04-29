@@ -1,0 +1,324 @@
+﻿@model StudentManagementMVCProject.ViewModels.Teachers.TeacherCoursesViewModel
+@{
+    ViewData["Title"] = "مقررات المعلم";
+}
+
+<div class="courses-dashboard" dir="rtl">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-person-video2"></i> مقررات المعلم: @Model.TeacherName
+            </h1>
+            <div class="header-actions">
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Index" asp-controller="Teachers" class="btn btn-secondary btn-back">
+                        <i class="bi bi-arrow-right"></i> العودة إلى قائمة المعلمين
+                    </a>
+                }
+                else if (User.IsInRole("Teacher")){
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary btn-back">
+                        <i class="bi bi-arrow-right"></i> العودة إلى الصفحة الرئيسية
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="header-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="currentColor"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="currentColor"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="currentColor"></path>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Selection Section -->
+    <div class="selection-container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="academicYearId" class="form-label">
+                        <i class="bi bi-calendar2-range"></i> العام الدراسي
+                    </label>
+                    <select class="form-select" id="academicYearId" asp-items="@ViewData["AcademicYears"] as SelectList">
+                        <option value="">اختر العام الدراسي</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="semesterId" class="form-label">
+                        <i class="bi bi-calendar-week"></i> الفصل الدراسي
+                    </label>
+                    <select class="form-select" id="semesterId" disabled>
+                        <option value="">اختر الفصل الدراسي</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses Container -->
+    <div class="courses-container mt-4">
+        <div id="coursesContainer">
+            <div class="no-courses">
+                <i class="bi bi-journal-x"></i>
+                <h4>لا توجد مقررات متاحة</h4>
+                <p>يرجى اختيار عام دراسي وفصل دراسي لعرض المقررات المسندة</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+    }
+
+    .courses-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem 2rem;
+    }
+
+    .dashboard-header {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+    }
+
+    .page-title {
+        color: var(--dark-color);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+        .page-title i {
+            margin-left: 0.75rem;
+            color: var(--primary-color);
+        }
+
+    .btn-back {
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
+        .btn-back i {
+            margin-left: 0.5rem;
+        }
+
+    .header-wave {
+        color: rgba(67, 97, 238, 0.1);
+    }
+
+        .header-wave svg {
+            display: block;
+            width: 100%;
+            height: 5rem;
+        }
+
+    .selection-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+        .form-label i {
+            margin-left: 0.5rem;
+            color: var(--primary-color);
+        }
+
+    .form-select {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .courses-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        min-height: 300px;
+    }
+
+    .no-courses {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+        .no-courses i {
+            font-size: 3rem;
+            color: #adb5bd;
+            margin-bottom: 1rem;
+        }
+
+        .no-courses h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+    /* Table Styles */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background-color: rgba(67, 97, 238, 0.05);
+            }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .table .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.25rem;
+        }
+
+            .table .btn i {
+                margin-left: 0.25rem;
+            }
+
+    /* Responsive Styles */
+    @@media (max-width: 1200px) {
+        .courses-dashboard {
+            padding: 0 1rem 1.5rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .selection-container .row {
+            flex-direction: column;
+        }
+
+        .selection-container .col-md-6 {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#academicYearId").change(function () {
+                loadSemesters();
+            });
+
+            $("#semesterId").change(function () {
+                loadCourses();
+            });
+
+            function loadSemesters() {
+                var academicYearId = $("#academicYearId").val();
+                $("#coursesContainer").empty();
+                if (academicYearId) {
+                    $.ajax({
+                        url: '@Url.Action("GetSemestersByAcademicYearId", "Semesters")',
+                        type: 'GET',
+                        data: { academicYearId: academicYearId },
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function (data) {
+                            var semesterDropdown = $("#semesterId");
+                            semesterDropdown.empty();
+                            semesterDropdown.append('<option value="">اختر الفصل الدراسي</option>');
+                            $.each(data, function (index, item) {
+                                semesterDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                            });
+                            semesterDropdown.prop("disabled", false);
+                        },
+                        error: function () {
+                            $("#semesterId").empty().append('<option value="">اختر الفصل الدراسي</option>');
+                            $("#semesterId").prop("disabled", true);
+                            $("#coursesContainer").html('<div class="alert alert-danger">حدث خطأ أثناء تحميل الفصول الدراسية.</div>');
+                        }
+                    });
+                } else {
+                    $("#semesterId").empty().append('<option value="">اختر الفصل الدراسي</option>');
+                    $("#semesterId").prop("disabled", true);
+                    $("#coursesContainer").html('<div class="no-courses"><i class="bi bi-journal-x"></i><h4>لا توجد مقررات متاحة</h4><p>يرجى اختيار عام دراسي لعرض الفصول الدراسية</p></div>');
+                }
+            }
+
+            function loadCourses() {
+                var semesterId = $("#semesterId").val();
+                var teacherId = @Model.TeacherId;
+                if (semesterId) {
+                    $.ajax({
+                        url: '@Url.Action("GetTeacherCoursesPartial", "Teachers")',
+                        type: 'POST',
+                        data: { semesterId: semesterId, teacherId: teacherId },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val(),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        success: function (data) {
+                            $("#coursesContainer").html(data);
+                        },
+                        error: function () {
+                            $("#coursesContainer").html('<div class="alert alert-danger">حدث خطأ أثناء تحميل المقررات.</div>');
+                        }
+                    });
+                } else {
+                    $("#coursesContainer").html('<div class="no-courses"><i class="bi bi-journal-x"></i><h4>لا توجد مقررات متاحة</h4><p>يرجى اختيار فصل دراسي</p></div>');
+                }
+            }
+        });
+    </script>
+}

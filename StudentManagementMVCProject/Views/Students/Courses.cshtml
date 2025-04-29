@@ -55,7 +55,7 @@
             $("#coursesContainer").empty();
             if (academicYearId) {
                 $.ajax({
-                    url: '@Url.Action("GetSemestersByAcademicYearId", "Students")',
+                    url: '@Url.Action("GetSemestersByAcademicYearId", "Semesters")',
                     type: 'GET',
                     data: { academicYearId: academicYearId },
                     success: function (data) {

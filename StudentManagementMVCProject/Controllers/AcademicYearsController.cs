@@ -2,46 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentManagementMVCProject.Data;
 using StudentManagementMVCProject.Models;
+using StudentManagementMVCProject.Persistence.UnitOfWork;
 
 namespace StudentManagementMVCProject.Controllers
 {
+    [Authorize(Roles ="Admin")]
     public class AcademicYearsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AcademicYearsController(ApplicationDbContext context)
+        public AcademicYearsController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: AcademicYears
         public async Task<IActionResult> Index()
         {
-            return View(await _context.AcademicYears.ToListAsync());
+            return View(await _unitOfWork.Repository<AcademicYear>().GetAllAsync());
         }
 
-        // GET: AcademicYears/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var academicYear = await _context.AcademicYears
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (academicYear == null)
-            {
-                return NotFound();
-            }
-
-            return View(academicYear);
-        }
+        
 
         // GET: AcademicYears/Create
         public IActionResult Create()
@@ -58,22 +45,24 @@ namespace StudentManagementMVCProject.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(academicYear);
-                await _context.SaveChangesAsync();
+                await _unitOfWork.Repository<AcademicYear>().AddAsync(academicYear);
+                TempData["SweetAlertMessage"] = $"AcademicYear {academicYear.Name} is Created..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
                 return RedirectToAction(nameof(Index));
             }
             return View(academicYear);
         }
 
         // GET: AcademicYears/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var academicYear = await _context.AcademicYears.FindAsync(id);
+            var academicYear = await _unitOfWork.Repository<AcademicYear>().GetByIdAsync(id);
             if (academicYear == null)
             {
                 return NotFound();
@@ -97,8 +86,10 @@ namespace StudentManagementMVCProject.Controllers
             {
                 try
                 {
-                    _context.Update(academicYear);
-                    await _context.SaveChangesAsync();
+                    await _unitOfWork.Repository<AcademicYear>().UpdateAsync(academicYear);
+                    TempData["SweetAlertMessage"] = $"AcademicYear {academicYear.Name} is Updated..!";
+                    TempData["SweetAlertType"] = "success";
+                    TempData["SweetAlertButtonText"] = "متابعة";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -117,15 +108,14 @@ namespace StudentManagementMVCProject.Controllers
         }
 
         // GET: AcademicYears/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var academicYear = await _context.AcademicYears
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var academicYear = await  _unitOfWork.Repository<AcademicYear>().GetByIdAsync(id);
             if (academicYear == null)
             {
                 return NotFound();
@@ -139,19 +129,21 @@ namespace StudentManagementMVCProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var academicYear = await _context.AcademicYears.FindAsync(id);
+            var academicYear = await _unitOfWork.Repository<AcademicYear>().GetByIdAsync(id);
             if (academicYear != null)
             {
-                _context.AcademicYears.Remove(academicYear);
+                TempData["SweetAlertMessage"] = $"AcademicYear {academicYear.Name} is Deleted..!";
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertButtonText"] = "متابعة";
+                await _unitOfWork.Repository<AcademicYear>().DeleteAsync(academicYear);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AcademicYearExists(int id)
         {
-            return _context.AcademicYears.Any(e => e.Id == id);
+            return _unitOfWork.Repository<AcademicYear>().GetAsQueryAble().Any(e => e.Id == id);
         }
     }
 }

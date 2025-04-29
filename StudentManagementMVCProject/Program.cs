@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StudentManagementMVCProject.Data;
+using StudentManagementMVCProject.DependencyInjection;
 using StudentManagementMVCProject.ExternalServices;
 using StudentManagementMVCProject.Mapping;
 using StudentManagementMVCProject.Models;
@@ -25,41 +26,21 @@ namespace StudentManagementMVCProject
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IStudentService, StudentService>();
-            builder.Services.AddScoped<IAcademicRecordService, AcademicRecordService>();
-            builder.Services.AddScoped<ICourseRegistrationService, CourseRegistrationService>();
-            builder.Services.AddScoped<ITeacherService, TeacherService>();
-            builder.Services.AddScoped<ISemesterService, SemesterService>();
-            builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-            builder.Services.AddScoped<ICourseService, CourseService>();
-            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
-            builder.Services.AddAutoMapper(typeof(RoleProfile));
-            builder.Services.AddAutoMapper(typeof(CourseProfile));
-            builder.Services.AddAutoMapper(typeof(StudentProfile));
-            builder.Services.AddAutoMapper(typeof(DepartmentProfile));
-            builder.Services.AddAutoMapper(typeof(TeacherProfile));
-            //Cancel Confirmation Account
-            builder.Services.AddIdentity<User, IdentityRole>(
-                options => {
-
-                    options.SignIn.RequireConfirmedAccount = false;
-                    options.Tokens.AuthenticatorTokenProvider = null;
-
-                }
-            )
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders()
-                .AddDefaultUI();
+            builder.Services.AddIdentityDependencyInjection();
+            builder.Services.AddExternalLoginsDependencyInjection();
+            builder.Services.AddServicesDependencyInjection();
+            builder.Services.AddMappersDependencyInjection();
+            builder.Services.AddExternalServicesDependencyInjection();
+            
+            
            
             builder.Services.AddControllersWithViews();
-            //builder.Services.AddRazorPages();
 
-            //Confirmation Mail
-            builder.Services.AddTransient<IEmailSender, ConfirmationRegisterService>();
+            
             var app = builder.Build();
-           
+
+            
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

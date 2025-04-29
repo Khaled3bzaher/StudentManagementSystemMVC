@@ -1,7 +1,5 @@
 ﻿@model RegistrationViewModel
 
-<!-- أضف Bootstrap Icons في الجزء العلوي من الصفحة -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -47,7 +45,6 @@
                 }
                 else
                 {
-                    <!-- معلومات التسجيل -->
                     <div class="card mb-4 shadow-sm">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0 d-flex justify-content-between align-items-center">
@@ -101,7 +98,6 @@
                         <input type="hidden" asp-for="Semester.Id" />
                         <input type="hidden" asp-for="Semester.Name" />
 
-                        <!-- المقررات المتاحة -->
                         <div class="card shadow-sm mb-4">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="mb-0 d-flex justify-content-between align-items-center">
@@ -197,7 +193,6 @@
             const submitButton = $('#submitButton');
             const hoursStatus = $('#hoursStatus');
 
-            // حساب الساعات المختارة
             $('.course-checkbox').change(function () {
                 calculateTotalHours();
                 updateCardStyle(this);
@@ -221,7 +216,6 @@
 
                 $('#totalHours').text(total);
 
-                // تغيير حالة الساعات
                 if (total === 0) {
                     hoursStatus.html('<span class="text-muted"><i class="bi bi-info-circle me-1"></i>لم يتم اختيار أي مقررات</span>');
                 } else if (total > maxHours) {
@@ -238,10 +232,8 @@
                     $('#totalHours').removeClass('text-danger');
                 }
 
-                // تعطيل زر الإرسال إذا لم يتم اختيار أي مقررات أو تجاوز الحد
                 submitButton.prop('disabled', total === 0 || total > maxHours);
 
-                // تغيير مظهر الزر
                 if (submitButton.prop('disabled')) {
                     submitButton.removeClass('btn-primary').addClass('btn-secondary');
                 } else {
@@ -249,12 +241,10 @@
                 }
             }
 
-            // تحديث أنماط البطاقات عند التحميل
             $('.course-checkbox').each(function() {
                 updateCardStyle(this);
             });
 
-            // حساب الساعات عند التحميل
             calculateTotalHours();
         });
     </script>

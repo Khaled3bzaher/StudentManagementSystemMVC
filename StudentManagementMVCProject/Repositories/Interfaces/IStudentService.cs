@@ -10,11 +10,10 @@ namespace StudentManagementMVCProject.Repositories.Interfaces
     {
         Task<int> GetStudentIdByUserAsync(string name);
         Task<Student> AddStudentUserAsync(AddStudentDTO model);
-        Task<List<StudentListViewModel>> GetStudentsListAsync();
+        Task<(List<StudentListViewModel>, int TotalCount)> GetStudentsListAsync(int pageNumber = 1, int pageSize = 4);
+        Task<Student> GetStudentIdByUserIdAsync(string userId);
 
-        Task<List<StudentListViewModel>> GetFilteredStudentsListAsync(
-            StudentSearchFilterViewModel filter
-            );
+        Task<(List<StudentListViewModel> Items, int TotalCount)> GetFilteredStudentsListAsync(StudentSearchFilterViewModel filter);
         Task<StudentDetailsViewModel> GetStudentDetailsAsync(int id);
 
         Task<StudentEditViewModel?> GetStudentForEditAsync(int id);

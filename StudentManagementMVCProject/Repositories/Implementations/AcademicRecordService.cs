@@ -36,5 +36,7 @@ namespace StudentManagementMVCProject.Repositories.Implementations
         {
             return await _unitOfWork.Repository<AcademicRecord>().GetAsQueryAble().Where(r=>r.StudentId == studentId).Include(r => r.Semester).OrderByDescending(r=>r.Semester.StartDate).FirstOrDefaultAsync();
         }
+
+        
     }
 }

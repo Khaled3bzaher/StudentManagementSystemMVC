@@ -1,71 +1,292 @@
 ﻿@model IEnumerable<TeacherListViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Teachers Management";
+    var departments = Model.Select(t => t.Department).Distinct().ToList();
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-people-fill me-2"></i>Teachers Management
+        </h2>
+        <a asp-action="Create" class="btn btn-primary rounded-pill px-4">
+            <i class="bi bi-plus-circle me-2"></i>Add New Teacher
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NationalId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Qualification)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HireDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.NationalId)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.Department)
-            </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Qualification)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HireDate)
-                </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+    <!-- Advanced Search Box -->
+    <div class="card shadow-sm mb-4 border-0 rounded-3">
+        <div class="card-body p-3">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control border-start-0"
+                               placeholder="Search by name, national ID or email...">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                            <i class="bi bi-x-lg"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="departmentFilter">
+                        <option value="">All Departments</option>
+                        @foreach (var dept in departments)
+                        {
+                            <option value="@dept">@dept</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teachers Cards -->
+    <div class="row g-4" id="teachersContainer">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-4 teacher-card"
+                 data-name="@item.FullName.ToLower()"
+                 data-nationalid="@item.NationalId.ToLower()"
+                 data-email="@item.Email.ToLower()"
+                 data-department="@item.Department">
+                <div class="card shadow-sm h-100 border-0 rounded-3">
+                    <div class="card-header bg-light border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0 fw-semibold text-truncate">
+                                <i class="bi bi-person-badge me-2"></i>@item.FullName
+                            </h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle"
+                                        type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-action="Courses" asp-route-id="@item.Id">
+                                            <i class="bi bi-pencil-square me-2"></i>Courses
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">
+                                            <i class="bi bi-pencil-square me-2"></i>Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">
+                                            <i class="bi bi-info-circle me-2"></i>Details
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button type="button" class="dropdown-item text-danger delete-btn"
+                                                data-id="@item.Id"
+                                                data-name="@item.FullName"
+                                                title="حذف">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </button>
+                                        @* <a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id"> *@
+                                        @*     <i class="bi bi-trash me-2"></i>Delete *@
+                                        @* </a> *@
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item border-0 px-0 py-2">
+                                <i class="bi bi-card-text me-2 text-muted"></i>
+                                <strong>National ID:</strong> @item.NationalId
+                            </li>
+                            <li class="list-group-item border-0 px-0 py-2">
+                                <i class="bi bi-envelope me-2 text-muted"></i>
+                                <strong>Email:</strong> @item.Email
+                            </li>
+                            <li class="list-group-item border-0 px-0 py-2">
+                                <i class="bi bi-building me-2 text-muted"></i>
+                                <strong>Department:</strong> @item.Department
+                            </li>
+                            <li class="list-group-item border-0 px-0 py-2">
+                                <i class="bi bi-calendar-check me-2 text-muted"></i>
+                                <strong>Hire Date:</strong> @item.HireDate.ToString("dd/MM/yyyy")
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-light border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-info bg-opacity-10 text-info">
+                                <i class="bi bi-person-workspace me-1"></i> Teacher
+                            </span>
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    <div id="noResults" class="text-center py-5 d-none">
+        <div class="mb-3">
+            <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h5 class="text-muted">No teachers found</h5>
+        <p class="text-muted">Try adjusting your search or filter to find what you're looking for.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const clearSearch = document.getElementById('clearSearch');
+            const departmentFilter = document.getElementById('departmentFilter');
+            const teacherCards = document.querySelectorAll('.teacher-card');
+            const noResults = document.getElementById('noResults');
+            const teachersContainer = document.getElementById('teachersContainer');
+
+            // Search functionality
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedDepartment = departmentFilter.value;
+                let hasVisibleCards = false;
+
+                teacherCards.forEach(card => {
+                    const name = card.dataset.name;
+                    const nationalId = card.dataset.nationalid;
+                    const email = card.dataset.email;
+                    const department = card.dataset.department;
+
+                    const matchesSearch = searchTerm === '' ||
+                                         name.includes(searchTerm) ||
+                                         nationalId.includes(searchTerm) ||
+                                         email.includes(searchTerm);
+
+                    const matchesDepartment = selectedDepartment === '' ||
+                                             department === selectedDepartment;
+
+                    if (matchesSearch && matchesDepartment) {
+                        card.classList.remove('d-none');
+                        hasVisibleCards = true;
+                    } else {
+                        card.classList.add('d-none');
+                    }
+                });
+
+                // Show/hide no results message
+                if (hasVisibleCards) {
+                    noResults.classList.add('d-none');
+                    teachersContainer.classList.remove('d-none');
+                } else {
+                    noResults.classList.remove('d-none');
+                    teachersContainer.classList.add('d-none');
+                }
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', performSearch);
+            departmentFilter.addEventListener('change', performSearch);
+
+            // Clear search
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                departmentFilter.value = '';
+                performSearch();
+                searchInput.focus();
+            });
+
+            // Trigger search when pressing Enter
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+
+
+            // Delete button click handler
+            $(document).on('click', '.delete-btn', function() {
+                var teacherId = $(this).data('id');
+                var teacherName = $(this).data('name');
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                // Validate studentId
+                var parsedId = parseInt(teacherId);
+                if (!Number.isInteger(parsedId)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطأ',
+                        text: 'معرف المعلم غير صالح',
+                        confirmButtonText: 'حسناً'
+                    });
+                    return;
+                }
+
+                // Show SweetAlert confirmation
+                Swal.fire({
+                    title: 'تأكيد الحذف',
+                    html: `<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>هل أنت متأكد أنك تريد حذف المعلم
+                            <br>
+                            <strong>${teacherName}</strong>؟`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'نعم، احذفه!',
+                    cancelButtonText: 'إلغاء',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return $.ajax({
+                            url: '@Url.Action("Delete", "Teachers")',
+                            type: 'POST',
+                            data: {
+                                id: parsedId,
+                                __RequestVerificationToken: token
+                            }
+                        }).then(function(response) {
+                            if (!response.success) {
+                                throw new Error(response.error || 'حدث خطأ أثناء الحذف');
+                            }
+                            return response;
+                        }).catch(function(error) {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error.statusText || error.message}`
+                            );
+                        });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        if (result.value.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم الحذف!',
+                                text: `${result.value.error}`,
+                                timer: 5000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload(); // Refresh the data
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'خطأ',
+                                text: result.value.error || 'حدث خطأ أثناء الحذف',
+                                confirmButtonText: 'حسناً'
+                            });
+                        }
+                    }
+                });
+            });
+
+        });
+
+    </script>
 }
-    </tbody>
-</table>

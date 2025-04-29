@@ -23,6 +23,7 @@ namespace StudentManagementMVCProject.Models
         [Required]
         public string Qualification { get; set; }
         [Required]
+        [DataType(DataType.Date)]
         public DateTime HireDate { get; set; }
 
         public ICollection<CourseSchedule> CourseSchedules { get; set; } = new List<CourseSchedule>();
